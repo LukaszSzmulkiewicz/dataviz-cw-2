@@ -125,7 +125,6 @@ button {
     background-color: rgb(158, 201, 244);
     border-color: dodgerblue;
     cursor: pointer;
-    margin-top: 102px;
 }
 button:hover {
     font-weight: bold;

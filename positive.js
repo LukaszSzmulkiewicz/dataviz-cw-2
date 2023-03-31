@@ -51,7 +51,9 @@ function loadData() {
     var countryData = results[3];
     var densityData = results[4];
     var densities = {};
-    var color = getColors(gdp); 
+
+    // getting color scales for each dataset
+    var colorGDP = getColors(gdp); 
 
 
     console.log("gdp", gdp);
@@ -92,12 +94,14 @@ var selectedOptionIndex = 0;
 plusButton.on("click", function() {
   selectedOptionIndex = Math.min(selectedOptionIndex + 1, yearDataOption.length - 1);
   dropdown.property("value", yearDataOption[selectedOptionIndex]);
-  console.log("I am clicking on pluss")
+
     const dropdownYear = dropdown.property("value");;
     const filteredData = groupedGdpYear.get(dropdownYear)
+    
    const densitiesUpdate = {};
     filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.total_gdp));
-    updateDensities(countryData, svgMap, filteredData);
+    updateDensities(svgMap, filteredData, colorGDP)
+
 });
 
 minusButton.on("click", function() {
@@ -107,8 +111,21 @@ minusButton.on("click", function() {
   const filteredData = groupedGdpYear.get(dropdownYear);
   const densitiesUpdate = {};
   filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.total_gdp));
-  updateDensities(countryData, svgMap, filteredData)
+  updateDensities(svgMap, filteredData, colorGDP)
 
+
+});
+
+const optionUpdate = d3.select("#dropdown")
+
+optionUpdate.on('change', function() {
+
+  const dropdownYear = dropdown.property("value");;
+  console.log("i am getting the change", dropdownYear)
+  const filteredData = groupedGdpYear.get(dropdownYear);
+  const densitiesUpdate = {};
+  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.total_gdp));
+  updateDensities(svgMap, filteredData, colorGDP)
 });
     
     const dropdownYear = dropdown.property("value");;
@@ -119,98 +136,28 @@ minusButton.on("click", function() {
     // console.log("data by year in function", densities)
 
 
-    function updateMapColor(densities) {
-    // var color = getColors(densities); 
-    console.log("densities update", densities)
-      svgMap.selectAll(".map-path")
-        .transition()
-        .duration(500)
-        .style("fill", (d) => color(densities[d.id]));
-    }
     svgMap
-      .append("g")
+   .append("g")
       .attr("class", "countries")
       .selectAll("path")
+      .data(countryData.features)
+      .enter()
+      .append("path")
+      .attr("class", (d) => `map-path ${d.properties.name}`)
+      .attr("d", path)
+      .style("fill", (d) => colorGDP(densities[d.id]))
+      .style("stroke", "black")
+      .style("stroke-width", 0.3)
+
+    updateDensities(svgMap, filteredData, colorGDP)
     
+    const plusButtonInterval = d3.select("#plus-button");
 
-      updateDensities(countryData, svgMap, filteredData)
-      
-      function updateDensities(countryData, svgMap, filteredData){
-
-        densities = {};
-    filteredData.forEach((x) => (densities[x.country_code] = +x.total_gdp));
-        console.log("filtered data in update densities", densities)
-
-        
-        const u = svgMap.selectAll('.countries')
-        .data(countryData.features)
-        u.join(
-          enter => enter
-          .append("path")
-        .attr("class", (d) => `map-path ${d.properties.name}`)
-        .attr("d", path)
-        .style("fill", (d) => color(densities[d.id]))
-        .style("stroke", "black"),
-        // .style("stroke-width", 0.3)
-        
-          update => update.style("fill", (d) => color(densities[d.id])),
-
-          exit => exit.remove()
-        
-        )       
-        .on("mouseover", function (event, d) {
-          d3.select().style("opacity", 1);
-          d3.select(this).style("stroke", "black").style("opacity", 1);
-        })
-        .on("mousemove", function (event, d) {
-          d3.select(this).style("fill", "dodgerblue");
-          const className = d.properties.name.split(" ")[0];
-          d3.selectAll(`.${className}`).style("fill", "dodgerblue");
-          var density = densities[d.id] ? densities[d.id].toLocaleString() : "N/A";
-          d3.select(".tooltip")
-            .html(
-              "<strong>" + d.properties.name +
-                "</strong><br>Population Density: " + density
-            )
-            .transition()
-            .duration(150)
-            .style("opacity", 0.9)
-            .style("left", event.pageX + 10 + "px")
-            .style("top", event.pageY - 100 + "px");
-        })
-        .on("mouseout", function (event, d) {
-          d3.select(this).style("fill", (d) => color(densities[d.id]));
-          const className = d.properties.name.split(" ")[0];
-          d3.selectAll(`.${className}`).style("fill", (d) =>
-            color(densities[d.id])
-          );
-          tooltip.transition().duration(500).style("opacity", 0);
-        });
-    
-      var tooltip = d3
-        .select(".map-container")
-        .append("div")
-        .attr("class", "tooltip")
-        .style("opacity", 0);
-    
-      // map zoom
-        let zoom = d3.zoom()
-        .on('zoom', handleZoom);
-    
-      function handleZoom(e) {
-        d3.select('svg g')
-          .attr('transform', e.transform);
-      }
-    
-        d3.select('svg')
-          .call(zoom);
-    
-      }
-
-
-
-
-  // setting svg size
+    // Click the plus button every 15 seconds
+    const intervalId = setInterval(() => {
+      plusButtonInterval.node().click();
+    }, 500);
+    // setting svg size
   const marginChart = { top: 80, right: 40, bottom: 40, left: 70 };
   const widthChart = 800 - marginChart.right - marginChart.left;
   const heightChart = 450 - marginChart.top - marginChart.bottom;
@@ -408,12 +355,12 @@ function prepareDataYear(data){
   // function for formatting bar chart ticks 
 function formatTicks(d) {
   if((d >= 1000000000000)){
-    return (d / 1000000000000).toFixed(0) + "tn";
+    return (d / 1000000000000).toFixed(1) + "tn";
   }
   else if (d >= 1000000000) {
-    return (d / 1000000000).toFixed(0) + "bl";
+    return (d / 1000000000).toFixed(1) + "bl";
   } else if (d >= 1000000) {
-    return (d / 1000000).toFixed(0) + "mil";
+    return (d / 1000000).toFixed(1) + "mil";
   } else if (d >= 1000) {
     return (d / 1000).toFixed(0) + "k";
   } else {
@@ -473,6 +420,7 @@ headerElements.join(
 
     // Create a update selection: bind to the new data
    const u = svgChart.selectAll('.bar-series')
+   
    .data(data, d => d.year)
   // draw bars
     u
@@ -564,4 +512,92 @@ function getColors(densityData) {
   });
 
   return d3.scaleThreshold().domain(sortedDensities).range(oranges);
+}
+
+function updateDensities(svgMap, filteredData, color){
+
+  const densities = {};
+  filteredData.forEach((x) => (densities[x.country_code] = +x.total_gdp));
+
+  
+  const u = svgMap.selectAll('.map-path')
+  u.join(
+    enter => enter,
+  
+    update => update.style("fill", (d) => color(densities[d.id])),
+
+    exit => exit.remove()
+  
+  )       
+  .on("mouseover", function (event, d) {
+    d3.select().style("opacity", 1);
+    d3.select(this).style("stroke", "black").style("opacity", 1);
+  })
+  .on("mousemove", function (event, d) {
+    d3.select(this).style("fill", "dodgerblue");
+    const className = d.properties.name.split(" ")[0];
+    d3.selectAll(`.${className}`).style("fill", "dodgerblue");
+    var density = densities[d.id] ? densities[d.id].toLocaleString() : "No Data";
+    d3.select(".tooltip")
+      .html(
+        "<strong>" + d.properties.name +
+          "</strong><br>GDP: " + density
+      )
+      .transition()
+      .duration(150)
+      .style("opacity", 0.9)
+      .style("left", event.pageX + 10 + "px")
+      .style("top", event.pageY - 100 + "px");
+  })
+  .on("mouseout", function (event, d) {
+    d3.select(this).style("fill", (d) => color(densities[d.id]));
+    const className = d.properties.name.split(" ")[0];
+    d3.selectAll(`.${className}`).style("fill", (d) =>
+      color(densities[d.id])
+    );
+    d3.selectAll(".tooltip").transition().duration(500).style("opacity", 0);
+  });
+
+var tooltip = d3
+  .select(".map-container")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0);
+
+// map zoom
+  let zoom = d3.zoom()
+  .on('zoom', handleZoom);
+
+function handleZoom(e) {
+  d3.select('svg g')
+    .attr('transform', e.transform);
+}
+
+  d3.select('svg')
+    .call(zoom);
+
+}
+
+function autoClickPlusButton() {
+  const plusButton = d3.select("#plus-button");
+
+  // Click the plus button every 15 seconds
+  const intervalId = setInterval(() => {
+    plusButton.node().click();
+  }, 15000);
+
+  // Stop clicking the button when the options are exhausted or when the user clicks anywhere on the page
+  const dropdown = d3.select("#dropdown");
+  const options = dropdown.selectAll("option");
+  const lastOption = options.nodes()[options.size() - 1].value;
+  const stopAutoClicking = function() {
+    clearInterval(intervalId);
+    document.removeEventListener("click", stopAutoClicking);
+  };
+  plusButton.on("click", function() {
+    if (dropdown.node().value === lastOption) {
+      clearInterval(intervalId);
+    }
+  });
+  document.addEventListener("click", stopAutoClicking);
 }
