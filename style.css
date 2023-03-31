@@ -1,0 +1,177 @@
+body {
+    background-color: #faf7f7;
+}
+
+h1, h2, h3 {
+    text-align: center;
+    font-family:'Avenir', sans-serif;
+}
+
+li {
+    text-align:left;
+    margin-left: 300px;
+    font-family:'Avenir', sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    padding-bottom: 30px;
+}
+
+ul {
+    display: flex;
+    justify-content: center;
+}
+
+#project-container{
+    width: 1900px;
+    height: inherit;
+}
+.tooltip-vacs, .tooltip, .tooltip-chart, .tooltip-seasons{
+    position: absolute;
+    text-align: center;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    pointer-events: none;
+    font-family: 'Avenir', sans-serif;
+    font-weight: bold;
+    pointer-events: none;
+    /* transform: translateX(-50%); */
+  z-index: 9999;
+}
+
+svg {
+    border: 1px solid #ccc;
+  }
+  
+text {
+    font-family: 'Avenir', sans-serif;
+    font-weight: bold;
+}
+
+.yAxis .domain {
+    stroke: #bbb;   
+}
+
+.yAxis .tick line {
+    stroke: #bbb;
+    stroke-width: 0.5;
+    stroke-dasharray: 4, 2;
+}
+
+.xAxis .domain {
+    stroke: #bbb;   
+}
+
+.xAxis .tick line {
+    stroke: #bbb;
+    stroke-width: 0.5;
+    stroke-dasharray: 4, 2;
+}
+.xAxisSC .domain {
+    stroke: #bbb;   
+}
+
+.xAxisSC .tick line {
+    stroke: #bbb;
+    stroke-width: 0.5;
+    stroke-dasharray: 4, 2;
+}
+
+.axisLabel {
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+}
+
+.chart-row {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    row-gap: 20px
+}
+
+.chart-inner-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.chart-column button{
+    float: right;
+}
+.map-chart-container{
+    margin-top: 18px;
+
+}
+.flex-item {
+    margin: 10px, 10px, 10px, 10px
+}
+button {
+    color: rgb(77, 75, 75);
+    font-weight: bold;
+    background-color: rgb(158, 201, 244);
+    border-color: dodgerblue;
+    cursor: pointer;
+}
+
+ input {
+    color: rgb(77, 75, 75);
+    font-weight: bold;
+    background-color: rgb(158, 201, 244);
+    border-color: dodgerblue;
+    cursor: pointer;
+    margin-top: 102px;
+}
+button:hover {
+    font-weight: bold;
+    background-color: dodgerblue;
+    cursor: pointer;
+}
+
+.series-labels:hover, .line-series:hover, .circle-series:hover {
+    cursor: pointer;
+}
+
+#scatter-plot {
+    margin-top: 21px;
+}
+
+.axis .domain {
+    stroke: none;
+  }
+  
+  .x .tick line {
+    stroke: lightgrey;
+    stroke-dasharray: 5;
+  }
+
+  .image-pulse {
+    animation: pulse 3s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      opacity: 0.15;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 0.15;
+    }
+  }
+
+  #dropdown_dataset, #dropdown_country{
+    font-size: 16px;
+  }
+
+  .map-path {
+    stroke-width: 0.3;
+  }
+  
+  
