@@ -165,7 +165,8 @@ button:hover {
     }
   }
 
-  #dropdown_dataset, #dropdown_country{
+  #dropdown_dataset, #dropdown_country, 
+  #dropdown-dataset-map, #dropdown-select, button, input{
     font-size: 16px;
   }
 

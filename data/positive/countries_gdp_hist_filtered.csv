@@ -1,4 +1,4 @@
-,Unnamed: 0,country_code,sub_region_name,intermediate_region,country,income_group,year,total_gdp,total_gdp_million,gdp_variation,something
+,Unnamed: 0,country_code,sub_region_name,intermediate_region,country,income_group,year,value,total_gdp_million,gdp_variation,something
 40,226,ALB,Southern Europe,no data,Albania,Ingreso mediano alto,2000,3480355258.0,3480.355258,6.946216592,
 41,227,ALB,Southern Europe,no data,Albania,Ingreso mediano alto,2001,3922100794.0,3922.100794,8.293312631,
 42,228,ALB,Southern Europe,no data,Albania,Ingreso mediano alto,2002,4348068242.0,4348.068242,4.53652416,
