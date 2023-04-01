@@ -1,5 +1,7 @@
+
+
 var width = 900;
-var height = 800;
+var height = 900;
 
 var svgMap = d3
   .select(".map-container")
@@ -33,19 +35,21 @@ function loadData() {
     promises.push(d3.csv("data/positive/HDI_index.csv"));
     promises.push(d3.csv("data/positive/schooling.csv"));
     promises.push(d3.json("data/europe.json"));
-    promises.push(d3.csv("data/europe.csv"));
+    promises.push(d3.csv("data/inventions/inventions.csv"));
 
+    
   
     Promise.all(promises).then(dataLoaded);
   }
 
   function dataLoaded(results) {
     // getting data from promises array 
-    var gdp = results[0];
-    var development_idex = results[1];
-    var schooling = results[2];
-    var countryData = results[3];
-    var densityData = results[4];
+    const gdp = results[0];
+    const development_idex = results[1];
+    const schooling = results[2];
+    const countryData = results[3];
+    const inventions = results[4];
+    console.log("inventions", inventions)
 
     // other functional objects 
     var densities = {};
@@ -214,46 +218,48 @@ optionUpdate.on('change', function() {
 
     let timeLaps;
 
-    // var buttonValue = d3.select("#time-laps-button").node().value;
-    // console.log(buttonValue);
-    // if(buttonValue === "Turn Off Time-laps"){
-    //        // Click the plus button every interval of seconds
-    //        timeLaps = setInterval(() => {
-    //         plusButtonInterval.node().click();
-    //       if(yearDataOption.length-1 == selectedOptionIndex){
-    //         selectedOptionIndex =0
-    //       }
-    //       }, 750);
-    // }
+    var buttonValue = d3.select("#time-laps-button").node().value;
+    console.log(buttonValue);
+    if(buttonValue === "Turn Off Time-laps"){
+           // Click the plus button every interval of seconds
+           
+           timeLaps = setInterval(() => {
+            plusButtonInterval.node().click();
+          if(yearDataOption.length-1 == selectedOptionIndex){
+            selectedOptionIndex =0
+          }
+          }, 750);
+    }
     
-    // //  button for the time-laps bind with its click event
-    //   d3.select("#time-laps-button").on("click", function () {
-    //     // Toggle the brush state
-    //     var buttonValue = d3.select("#time-laps-button").node().value;
-    //     if(buttonValue === "Turn On Time-laps"){
-    //       d3.select("#time-laps-button").attr("value", "Turn Off Time-laps");
+    //  button for the time-laps bind with its click event
+      d3.select("#time-laps-button").on("click", function () {
+        // Toggle the brush state
+        var buttonValue = d3.select("#time-laps-button").node().value;
+        if(buttonValue === "Turn On Time-laps"){
+          d3.select("#time-laps-button").attr("value", "Turn Off Time-laps");
           
-    //       // Click the plus button every interval of seconds
-    //       timeLaps = setInterval(() => {
-    //         plusButtonInterval.node().click();
-    //         if(yearDataOption.length-1 == selectedOptionIndex){
-    //           selectedOptionIndex =0
-    //         }
-    //       }, 750);
+          // Click the plus button every interval of seconds
+          timeLaps = setInterval(() => {
+         
+            plusButtonInterval.node().click();
+            if(yearDataOption.length-1 == selectedOptionIndex){
+              selectedOptionIndex =0
+            }
+          }, 750);
      
-    //     }else {
-    //       d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
-    //       // Clear the interval
-    //       clearInterval(timeLaps);
+        }else {
+          d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
+          // Clear the interval
+          clearInterval(timeLaps);
         
-    //     }
-    //   });
+        }
+      });
 
  
     // setting svg size
   const marginChart = { top: 80, right: 40, bottom: 40, left: 70 };
-  const widthChart = 800 - marginChart.right - marginChart.left;
-  const heightChart = 450 - marginChart.top - marginChart.bottom;
+  const widthChart = 900 - marginChart.right - marginChart.left;
+  const heightChart = 350 - marginChart.top - marginChart.bottom;
 
   // Draw svg.
   const svg = d3
@@ -287,7 +293,6 @@ optionUpdate.on('change', function() {
 
   // the chart should start from 0 so getting a max
   const yMax = d3.max(barChartDataGDP, (d) => d.value);
-  console.log("yMAx", yMax)
 
   const yScale = d3.scaleLinear()
     // array with minimum and maximum values mapping from the domain to range values
@@ -402,9 +407,143 @@ optionUpdate.on('change', function() {
       }
 
     });
+
+       // setting svg size
+    const marginImg = { top: 40, right: 40, bottom: 40, left: 120 };
+    const widthImg = 900 - marginImg.right - marginImg.left;
+    const heightImg = 550 - marginImg.top - marginImg.bottom;
+
+    // preparing data
+    const inventionsData = prepareInventionsData(inventions);
+    console.log("inventions data", inventionsData)
+    // Drawing svg for inventions chart
+    const svgImg = d3
+    .select(`#inventions-container`)
+    .append("svg")
+    .attr("width", widthImg + marginImg.right + marginImg.left)
+    .attr("height", heightImg + marginImg.top + marginImg.bottom)
+    .append("g")
+    .attr("transform", `translate(${marginImg.left}, ${marginImg.top})`);
+
+     // shows the dates
+    const xScaleImg = d3.scaleBand()
+    .domain(inventionsData.map(d => d.year))
+    .range([0, widthImg])
+    .padding(0.2);
+
     
+    // Defining the y-axis scale
+    const yScaleImg = d3.scaleBand()
+  .domain(inventionsData.map(d => d.value))
+  .range([heightImg, 0])
+  .padding(0.2);
+    console.log("data map", inventionsData.map(d => d.year)) 
+
+  // Creating the y-axis
+  const yAxisImg = d3.axisLeft(yScaleImg)
+  .tickSizeOuter(0)
+  .tickFormat(formatTickLabel);
+
+  // Creating the x-axis
+  const xAxisImg = d3.axisBottom(xScaleImg)
+  .tickSizeOuter(0);
+
   
+  // Appending the x-axis to the chart
+  svgImg.append("g")
+  .attr("class", "xAxis")
+  .attr("transform", "translate(0," + heightImg + ")")
+  .call(xAxisImg);
+  
+  // Appending the y-axis to the chart
+  svgImg.append("g")
+  .attr("class", "yAxis")
+  .call(yAxisImg);
+
+  // Rotate xAxis ticks
+  d3.selectAll(".xAxis .tick text")
+  .attr("transform", "rotate(-22)")
+
+  //appending images
+ const images = svgImg.selectAll("image")
+  .data(inventionsData) // limit to first 10 data points
+  .enter()
+  .append("image")
+  .attr("class", d => d.year)
+  .attr("x", function(d) { return xScaleImg(d.year); })
+  .attr("y", function(d) { return yScaleImg(d.value); })
+  .attr("width", 30)
+  .attr("height", 30)
+  .attr("xlink:href", function(d) { return `data/inventions/${d.image}`; })
+  .attr("opacity", 0.4);
+
+  // Defining the mouseover behavior
+images.on("mouseover", function(event, d) {
+  // Select the image and update its attributes
+
+  let browserWidth = window.innerWidth;
+  let browserHeight = window.innerHeight;
+  let setHight = 750;
+  console.log("Browser resolution:", browserWidth, "x", browserHeight);
+  if(browserWidth <= 1745 ){
+    setHight = 1620;
   }
+
+  d3.select(this)
+    .transition()
+    .duration(1000)
+    .attr("x", widthImg / 2 - 350)
+    .attr("y", heightImg / 2 - 250)
+    .attr("width", 300)
+    .attr("height", 300)
+    .style("opacity", 1)
+    .transition()
+    .delay(3000)
+    .duration(1000)
+    .attr("x", function(d) { return xScaleImg(d.year); })
+    .attr("y", function(d) { return yScaleImg(d.value); })
+    .attr("width", 30)
+    .attr("height", 30)
+    .style("opacity", 0.4);
+    
+    d3.select(".tooltip-inventions")
+    .html(
+      "<strong>"+ d.value +" - " +d.year +
+        "</strong><br>"+ d.description
+        )
+    .transition()
+    .duration(1000)
+    .style("opacity", 1)
+    .style("left",  browserWidth/2 + 20 + "px")
+    .style("top",  setHight + "px")
+    .transition()
+    .delay(3000)
+    .duration(1000)
+    .style("opacity", 0);
+
+});
+
+// 
+const tooltipImg = d3
+  .select("#inventions-container")
+  .append("div")
+  .attr("class", "tooltip-inventions")
+  .style("opacity", 0);
+
+
+// // Defining the mouseout behavior
+// images.on("mouseout", function() {
+//   // Select the image and update its attributes
+//   d3.select(this)
+//     .attr("x", function(d) { return xScaleImg(d.year) - 10; })
+//     .attr("y", function(d) { return yScaleImg(d.value) - 10; })
+//     .attr("width", 30)
+//     .attr("height", 30)
+//     .style("opacity", 0.7);
+// });
+
+
+}
 
   function prepareBarChartData(data, selectedOption) {
     const filteredData = data.get(selectedOption)
@@ -450,6 +589,19 @@ optionUpdate.on('change', function() {
     }));
   
     return dataArray;
+  }
+
+  function prepareInventionsData(data){
+      // converting the map to the array of objects key at index 0 and value at index 1
+      const dataArray = data.map((d) => ({
+        year: d3.timeParse("%Y")(d.year).getFullYear(),
+        value: d.caption,
+        image: d.image,
+        description: d.description
+      }));
+    
+      return dataArray;
+
   }
 
   // function for formatting bar chart ticks 
@@ -623,18 +775,25 @@ function getColors(densityData) {
 function updateDensities(svgMap, filteredData, color, year){
   const headerElements = d3.select(".map-header text");
   let headerText;
-  
-   // getting selected dataset from drop down
-   let selectedDataset = d3.select('#dropdown-dataset-map').property("value")
+  let tooltipText;
+  // getting selected dataset from drop down
+  let selectedDataset = d3.select('#dropdown-dataset-map').property("value")
 
-   if ( selectedDataset === "Gross domestic product"){
+  if ( selectedDataset === "Gross domestic product")
+  {
     headerText = "Gross Domestic product in Europe year: " + year;
-  } else if (selectedDataset === "Human Development Index") {
+    tooltipText = "GDP";
+  } else if (selectedDataset === "Human Development Index") 
+  {
     headerText = "Human Development Index in Europe year: " + year;
-  } else if (selectedDataset === 'Mean - years of schooling') {
+    tooltipText = "HDI";
+  } else if (selectedDataset === 'Mean - years of schooling') 
+  {
     headerText = "Mean - years of schooling in Europe year: " + year;
+    tooltipText = "AVG years";
   } else {
     headerText = "Gross Domestic product in Europe year: " + year;
+    tooltipText = "GDP";
   }
 // append a new text element to each header element
 headerElements.join(
@@ -676,13 +835,13 @@ headerElements.join(
     d3.select(".tooltip")
       .html(
         "<strong>" + d.properties.name +
-          "</strong><br>GDP: " + density
+          "</strong><br>"+ tooltipText +": " + density
       )
       .transition()
       .duration(150)
       .style("opacity", 0.9)
-      .style("left", event.pageX + 10 + "px")
-      .style("top", event.pageY - 100 + "px");
+      .style("left", event.pageX - 20 + "px")
+      .style("top", event.pageY - 65 + "px");
   })
   .on("mouseout", function (event, d) {
     d3.select(this).style("fill", (d) => color(densities[d.id]));
@@ -706,4 +865,16 @@ function handleZoom(e) {
   d3.select('svg')
     .call(zoom);
 
+}
+
+// function used to shorten longer labels
+function formatTickLabel(d) {
+  // Check if the text is longer than the maximum length
+  if (d.length > 15) {
+    // Truncate the text and add an ellipsis
+    return d.substr(0, 10 - 1) + "...";
+  } else {
+    // Return the original text
+    return d;
+  }
 }

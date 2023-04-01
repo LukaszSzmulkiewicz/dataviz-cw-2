@@ -1,7 +1,12 @@
 body {
     background-color: #faf7f7;
 }
-
+label {
+    font-family:'Avenir', sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 0px 5px 0px 5px  ;
+}
 h1, h2, h3 {
     text-align: center;
     font-family:'Avenir', sans-serif;
@@ -25,7 +30,7 @@ ul {
     width: 1900px;
     height: inherit;
 }
-.tooltip-vacs, .tooltip, .tooltip-chart, .tooltip-seasons{
+ .tooltip, .tooltip-inventions {
     position: absolute;
     text-align: center;
     background-color: white;
@@ -38,8 +43,27 @@ ul {
     font-weight: bold;
     pointer-events: none;
     /* transform: translateX(-50%); */
-  z-index: 9999;
+    z-index: 9999;
 }
+
+ .tooltip-inventions {
+    position: absolute;
+    bottom: 20;
+    text-align: center;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    pointer-events: none;
+    font-family: 'Avenir', sans-serif;
+    font-weight: bold;
+    pointer-events: none;
+    /* transform: translateX(-50%); */
+    z-index: 9999;
+
+}
+
 
 svg {
     border: 1px solid #ccc;
@@ -62,6 +86,14 @@ text {
 
 .xAxis .domain {
     stroke: #bbb;   
+}
+
+.yAxis text{
+    font-size: 14px;
+}
+
+.xAxis text {
+    font-size: 12px;
 }
 
 .xAxis .tick line {
@@ -104,6 +136,8 @@ text {
 .chart-column button{
     float: right;
 }
+
+
 .map-chart-container{
     margin-top: 18px;
 
@@ -112,23 +146,23 @@ text {
     margin: 10px, 10px, 10px, 10px
 }
 button {
-    color: rgb(77, 75, 75);
+    color: rgb(76, 73, 73);
     font-weight: bold;
-    background-color: rgb(158, 201, 244);
-    border-color: dodgerblue;
+    background-color: #55c2da;
+    border-color: #55c2da;
     cursor: pointer;
 }
 
  input {
-    color: rgb(77, 75, 75);
+    color: rgb(76, 73, 73);
     font-weight: bold;
-    background-color: rgb(158, 201, 244);
-    border-color: dodgerblue;
+    background-color: #55c2da;
+    border-color: #55c2da;
     cursor: pointer;
 }
-button:hover {
+button:hover, input:hover {
     font-weight: bold;
-    background-color: dodgerblue;
+    background-color: #68d3eb;
     cursor: pointer;
 }
 
@@ -166,12 +200,25 @@ button:hover {
   }
 
   #dropdown_dataset, #dropdown_country, 
-  #dropdown-dataset-map, #dropdown-select, button, input{
-    font-size: 16px;
+  #dropdown-dataset-map, #dropdown-select, 
+  button, input, #inventions-container{
+    font-size: 18px;
   }
 
   .map-path {
     stroke-width: 0.3;
   }
   
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
   
+  #dropdown-select option{
+    font-size: 18px;
+    padding: 18px;
+  }
+
+  #column2 {
+    margin-top: 66px;
+  }

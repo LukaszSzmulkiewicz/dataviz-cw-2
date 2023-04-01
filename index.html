@@ -17,25 +17,46 @@
     <div class="chart-row">
 			<div class="chart-column">
         <div class="chart-row">
+          <label>Zoom control: </label>
+          <button onclick="zoomOut()">Zoom Out</button>
+          <button onclick="zoomIn()">Zoom In</button>
+          <label>Time-laps control: </label>
+          <input type="button" id="time-laps-button" value="Turn Off Time-laps">
+        </div>
+        <div class="chart-row">
+          <label>Data: </label>
           <select id="dropdown-dataset-map"></select>
+          <label>Year: </label>
           <button id="minus-button">-1</button>
           <div id="dropdown"></div>
           <button id="plus-button">+1</button>
-			    <input type="button" id="time-laps-button" value="Turn Off Time-laps">
-
         </div>
         <div class="map-container"></div>
-
       </div>
-
 			<div class="chart-column">
+        <label>Country: </label>
         <select id="dropdown_country"></select>
+        <label>Data: </label>
         <select id="dropdown_dataset"></select>
         <div id="chartContainer"></div>
+        <div id="inventions-container"></div>
+
       </div>
     </div>
     <!-- <button onclick="showSelectedOption()">Show Selected Option</button> -->
 
-   
+   <script>
+    let zoomLevel = 100;
+
+    function zoomIn() {
+      zoomLevel += 10;
+      document.body.style.zoom = `${zoomLevel}%`;
+    }
+
+    function zoomOut() {
+      zoomLevel -= 10;
+      document.body.style.zoom = `${zoomLevel}%`;
+    }
+   </script>
   </body>
 </html>
