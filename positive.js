@@ -43,6 +43,8 @@ function loadData() {
   }
 
   function dataLoaded(results) {
+
+    const intervalTime = 5000
     // getting data from promises array 
     const gdp = results[0];
     const development_idex = results[1];
@@ -139,34 +141,6 @@ function loadData() {
         console.log("changing the datasets: ", groupedByYearData);
       });
 
-      var plusButton = d3.select("#plus-button");
-var minusButton = d3.select("#minus-button");
-
-
-
-plusButton.on("click", function() {
-  selectedOptionIndex = Math.min(selectedOptionIndex + 1, yearDataOption.length - 1);
-  dropdown.property("value", yearDataOption[selectedOptionIndex]);
-
-  const dropdownYear = dropdown.property("value");
-  const filteredData = groupedByYearData.get(dropdownYear)
-  const densitiesUpdate = {};
-  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-
-});
-
-minusButton.on("click", function() {
-  selectedOptionIndex = Math.max(selectedOptionIndex - 1, 0);
-  dropdown.property("value", yearDataOption[selectedOptionIndex]);
-
-  const dropdownYear = dropdown.property("value");
-  const filteredData = groupedByYearData.get(dropdownYear);
-  const densitiesUpdate = {};
-  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-
-});
 
 
 const optionUpdate = d3.select("#dropdown")
@@ -228,7 +202,7 @@ optionUpdate.on('change', function() {
           if(yearDataOption.length-1 == selectedOptionIndex){
             selectedOptionIndex =0
           }
-          }, 750);
+          }, intervalTime);
     }
     
     //  button for the time-laps bind with its click event
@@ -245,7 +219,7 @@ optionUpdate.on('change', function() {
             if(yearDataOption.length-1 == selectedOptionIndex){
               selectedOptionIndex =0
             }
-          }, 750);
+          }, intervalTime);
      
         }else {
           d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
@@ -305,7 +279,7 @@ optionUpdate.on('change', function() {
     .tickFormat(formatTicks)
     .tickSizeOuter(0)
     .tickSizeInner(-widthChart)
-    .ticks(20);
+    .ticks(10);
   
 
   const yAxisDraw = svg.append("g").attr("class", "yAxis").call(yAxis);
@@ -464,12 +438,16 @@ optionUpdate.on('change', function() {
   d3.selectAll(".xAxis .tick text")
   .attr("transform", "rotate(-22)")
 
+  let browserWidth; 
+  let browserHeight;
+  let setHight = 780;
+
   //appending images
  const images = svgImg.selectAll("image")
   .data(inventionsData) // limit to first 10 data points
   .enter()
   .append("image")
-  .attr("class", d => d.year)
+  .attr("class", (d, i ) => `image` + d.year)
   .attr("x", function(d) { return xScaleImg(d.year); })
   .attr("y", function(d) { return yScaleImg(d.value); })
   .attr("width", 30)
@@ -481,9 +459,8 @@ optionUpdate.on('change', function() {
 images.on("mouseover", function(event, d) {
   // Select the image and update its attributes
 
-  let browserWidth = window.innerWidth;
-  let browserHeight = window.innerHeight;
-  let setHight = 750;
+   browserWidth = window.innerWidth;
+   browserHeight = window.innerHeight;
   console.log("Browser resolution:", browserWidth, "x", browserHeight);
   if(browserWidth <= 1745 ){
     setHight = 1620;
@@ -499,7 +476,7 @@ images.on("mouseover", function(event, d) {
     .style("opacity", 1)
     .transition()
     .delay(3000)
-    .duration(1000)
+    .duration(500)
     .attr("x", function(d) { return xScaleImg(d.year); })
     .attr("y", function(d) { return yScaleImg(d.value); })
     .attr("width", 30)
@@ -514,10 +491,10 @@ images.on("mouseover", function(event, d) {
     .transition()
     .duration(1000)
     .style("opacity", 1)
-    .style("left",  browserWidth/2 + 20 + "px")
+    .style("left",  browserWidth/2 + "px")
     .style("top",  setHight + "px")
     .transition()
-    .delay(3000)
+    .delay(intervalTime-2000)
     .duration(1000)
     .style("opacity", 0);
 
@@ -541,6 +518,71 @@ const tooltipImg = d3
 //     .attr("height", 30)
 //     .style("opacity", 0.7);
 // });
+
+var plusButton = d3.select("#plus-button");
+var minusButton = d3.select("#minus-button");
+
+
+
+plusButton.on("click", function() {
+  selectedOptionIndex = Math.min(selectedOptionIndex + 1, yearDataOption.length - 1);
+  dropdown.property("value", yearDataOption[selectedOptionIndex]);
+
+  const dropdownYear = dropdown.property("value");
+  const filteredData = groupedByYearData.get(dropdownYear)
+  const densitiesUpdate = {};
+  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
+
+  const selectedImageData = d3.select(`image.image${dropdownYear}`).datum();
+      console.log("datum", selectedImageData)
+      d3.select(`image.image${dropdownYear}`)
+      .transition()
+      .duration(1000)
+      .attr("x", widthImg / 2 - 350)
+      .attr("y", heightImg / 2 - 250)
+      .attr("width", 300)
+      .attr("height", 300)
+      .style("opacity", 1)
+      .transition()
+      .delay(intervalTime)
+      .duration(500)
+      .attr("x", function(d) { return xScaleImg(selectedImageData.year); })
+      .attr("y", function(d) { return yScaleImg(selectedImageData.value); })
+      .attr("width", 30)
+      .attr("height", 30)
+      .style("opacity", 0.4);
+      
+      d3.select(".tooltip-inventions")
+      .html(
+        "<strong>"+ selectedImageData.value +" - " +selectedImageData.year +
+          "</strong><br>"+ selectedImageData.description
+          )
+      .transition()
+      .duration(1000)
+      .style("opacity", 1)
+      .style("left",  browserWidth/2 + "px")
+      .style("top",  setHight + "px")
+      .transition()
+      .delay(intervalTime-2000)
+      .duration(1000)
+      .style("opacity", 0);
+
+
+});
+
+minusButton.on("click", function() {
+  selectedOptionIndex = Math.max(selectedOptionIndex - 1, 0);
+  dropdown.property("value", yearDataOption[selectedOptionIndex]);
+
+  const dropdownYear = dropdown.property("value");
+  const filteredData = groupedByYearData.get(dropdownYear);
+  const densitiesUpdate = {};
+  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
+
+});
+
 
 
 }
