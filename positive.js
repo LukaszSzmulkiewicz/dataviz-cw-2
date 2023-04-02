@@ -1,7 +1,7 @@
 
 
 var width = 900;
-var height = 900;
+var height = 905;
 
 var svgMap = d3
   .select(".map-container")
@@ -191,12 +191,15 @@ optionUpdate.on('change', function() {
     const plusButtonInterval = d3.select("#plus-button");
 
     let timeLaps;
+    let isTimeLapOn;
+    let intervalColor;
+
 
     var buttonValue = d3.select("#time-laps-button").node().value;
     console.log(buttonValue);
     if(buttonValue === "Turn Off Time-laps"){
            // Click the plus button every interval of seconds
-           
+           isTimeLapOn = true;
            timeLaps = setInterval(() => {
             plusButtonInterval.node().click();
           if(yearDataOption.length-1 == selectedOptionIndex){
@@ -214,17 +217,21 @@ optionUpdate.on('change', function() {
           
           // Click the plus button every interval of seconds
           timeLaps = setInterval(() => {
-         
+           isTimeLapOn = true;
             plusButtonInterval.node().click();
             if(yearDataOption.length-1 == selectedOptionIndex){
               selectedOptionIndex =0
             }
           }, intervalTime);
-     
+         
         }else {
           d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
           // Clear the interval
+          isTimeLapOn = false;
           clearInterval(timeLaps);
+          clearInterval(intervalColor)
+          buttons.style("border", `2px solid #4fadc2`);
+          inputs.style("border", `2px solid #4fadc2`);
         
         }
       });
@@ -257,7 +264,7 @@ optionUpdate.on('change', function() {
     .tickSizeOuter(0)
     .tickPadding(12)
     .tickSizeInner(-heightChart)
-  .ticks(20);
+    .ticks(20);
   const xAxisDraw = svg
     .append("g")
     .attr("class", "xAxis")
@@ -288,7 +295,8 @@ optionUpdate.on('change', function() {
  const header = svg
  .append("g")
  .attr("class", "bar-chart-header")
- .attr("transform", `translate(70, -40)`)
+ .attr("transform", `translate(240, -40)`)
+ .attr("font-size", "18px")
  .append("text")
 
 
@@ -416,11 +424,15 @@ optionUpdate.on('change', function() {
   // Creating the y-axis
   const yAxisImg = d3.axisLeft(yScaleImg)
   .tickSizeOuter(0)
-  .tickFormat(formatTickLabel);
+  .tickFormat(formatTickLabel)
+  .tickSizeInner(-widthImg);
 
   // Creating the x-axis
   const xAxisImg = d3.axisBottom(xScaleImg)
-  .tickSizeOuter(0);
+  .tickSizeOuter(0)
+  .tickSizeInner(-heightImg)
+  .tickPadding(12);
+
 
   
   // Appending the x-axis to the chart
@@ -438,6 +450,14 @@ optionUpdate.on('change', function() {
   d3.selectAll(".xAxis .tick text")
   .attr("transform", "rotate(-22)")
 
+  //Draw header and subheader.
+ const headerImg = svgImg
+ .append("g")
+ .attr("class", "image-chart-header")
+ .attr("transform", `translate(200, 10)`)
+ .append("text")
+ .text("World's inventions between 2000-2019")
+
   let browserWidth; 
   let browserHeight;
   let setHight = 780;
@@ -449,7 +469,7 @@ optionUpdate.on('change', function() {
   .append("image")
   .attr("class", (d, i ) => `image` + d.year)
   .attr("x", function(d) { return xScaleImg(d.year); })
-  .attr("y", function(d) { return yScaleImg(d.value); })
+  .attr("y", function(d) { return yScaleImg(d.value) -5; })
   .attr("width", 30)
   .attr("height", 30)
   .attr("xlink:href", function(d) { return `data/inventions/${d.image}`; })
@@ -507,22 +527,8 @@ const tooltipImg = d3
   .attr("class", "tooltip-inventions")
   .style("opacity", 0);
 
-
-// // Defining the mouseout behavior
-// images.on("mouseout", function() {
-//   // Select the image and update its attributes
-//   d3.select(this)
-//     .attr("x", function(d) { return xScaleImg(d.year) - 10; })
-//     .attr("y", function(d) { return yScaleImg(d.value) - 10; })
-//     .attr("width", 30)
-//     .attr("height", 30)
-//     .style("opacity", 0.7);
-// });
-
 var plusButton = d3.select("#plus-button");
 var minusButton = d3.select("#minus-button");
-
-
 
 plusButton.on("click", function() {
   selectedOptionIndex = Math.min(selectedOptionIndex + 1, yearDataOption.length - 1);
@@ -533,41 +539,41 @@ plusButton.on("click", function() {
   const densitiesUpdate = {};
   filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
   updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-
-  const selectedImageData = d3.select(`image.image${dropdownYear}`).datum();
-      console.log("datum", selectedImageData)
-      d3.select(`image.image${dropdownYear}`)
-      .transition()
-      .duration(1000)
-      .attr("x", widthImg / 2 - 350)
-      .attr("y", heightImg / 2 - 250)
-      .attr("width", 300)
-      .attr("height", 300)
-      .style("opacity", 1)
-      .transition()
-      .delay(intervalTime)
-      .duration(500)
-      .attr("x", function(d) { return xScaleImg(selectedImageData.year); })
-      .attr("y", function(d) { return yScaleImg(selectedImageData.value); })
-      .attr("width", 30)
-      .attr("height", 30)
-      .style("opacity", 0.4);
-      
-      d3.select(".tooltip-inventions")
-      .html(
-        "<strong>"+ selectedImageData.value +" - " +selectedImageData.year +
-          "</strong><br>"+ selectedImageData.description
-          )
-      .transition()
-      .duration(1000)
-      .style("opacity", 1)
-      .style("left",  browserWidth/2 + "px")
-      .style("top",  setHight + "px")
-      .transition()
-      .delay(intervalTime-2000)
-      .duration(1000)
-      .style("opacity", 0);
-
+    if(isTimeLapOn)
+    {
+      const selectedImageData = d3.select(`image.image${dropdownYear}`).datum();
+        d3.select(`image.image${dropdownYear}`)
+        .transition()
+        .duration(1000)
+        .attr("x", widthImg / 2 - 350)
+        .attr("y", heightImg / 2 - 250)
+        .attr("width", 300)
+        .attr("height", 300)
+        .style("opacity", 1)
+        .transition()
+        .delay(intervalTime)
+        .duration(500)
+        .attr("x", function(d) { return xScaleImg(selectedImageData.year); })
+        .attr("y", function(d) { return yScaleImg(selectedImageData.value); })
+        .attr("width", 30)
+        .attr("height", 30)
+        .style("opacity", 0.4);
+        
+        d3.select(".tooltip-inventions")
+        .html(
+          "<strong>"+ selectedImageData.value +" - " +selectedImageData.year +
+            "</strong><br>"+ selectedImageData.description
+            )
+        .transition()
+        .duration(1000)
+        .style("opacity", 1)
+        .style("left",  browserWidth/2 + "px")
+        .style("top",  setHight + "px")
+        .transition()
+        .delay(intervalTime-2000)
+        .duration(1000)
+        .style("opacity", 0);
+  }
 
 });
 
@@ -580,8 +586,29 @@ minusButton.on("click", function() {
   const densitiesUpdate = {};
   filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
   updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-
+  
 });
+var colors = ["orange","#4fadc2"];
+var currentColor = 0;
+var buttons = d3.selectAll("button")
+var inputs = d3.selectAll("#time-laps-button")
+
+function changeColor() {
+  currentColor = (currentColor + 1) % colors.length;
+  buttons.style("border", `2px solid ${colors[currentColor]}`);
+  inputs.style("border", `2px solid ${colors[currentColor]}`);
+}
+d3.selectAll(".zoom").on("click", function(){
+  clearInterval(intervalColor)
+  buttons.style("border", `2px solid #4fadc2`);
+  inputs.style("border", `2px solid #4fadc2`);
+})
+
+
+  intervalColor = setInterval(changeColor, 1000);
+
+
+
 
 
 
@@ -671,7 +698,6 @@ function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, 
    let selectedCountry = d3.select('#dropdown_country').property("value")
     selectedCountry? selectedCountry = selectedCountry : selectedCountry = "Albania";
   
-    console.log("drop down country in bar chart update", selectedCountry)
   // update header
   const headerElements = d3.select(".bar-chart-header text");
   const headerText = data[0].header

@@ -14,36 +14,42 @@
     </head>
   <body>
     <script type="module" src="positive.js"></script>
-    <div class="chart-row">
-			<div class="chart-column">
-        <div class="chart-row">
-          <label>Zoom control: </label>
-          <button onclick="zoomOut()">Zoom Out</button>
-          <button onclick="zoomIn()">Zoom In</button>
-          <label>Time-laps control: </label>
-          <input type="button" id="time-laps-button" value="Turn Off Time-laps">
+    <div id="project-container">
+      <div class="chart-row">
+        <div class="chart-column">
+          <div class="control-wrapper-1">
+            <div class="chart-row">
+              <label>Zoom control: </label>
+              <button class="zoom" onclick="zoomOut()">Zoom Out</button>
+              <button class="zoom" onclick="zoomIn()">Zoom In</button>
+              <label>Time-laps control: </label>
+              <input type="button" id="time-laps-button" value="Turn Off Time-laps">
+            </div>
+            <div class="chart-row">
+              <label>Data: </label>
+              <select id="dropdown-dataset-map"></select>
+              <label>Year: </label>
+              <button id="minus-button">-1</button>
+              <div id="dropdown"></div>
+              <button id="plus-button">+1</button>
+            </div>
+          </div>
+          <div class="map-container"></div>
         </div>
-        <div class="chart-row">
-          <label>Data: </label>
-          <select id="dropdown-dataset-map"></select>
-          <label>Year: </label>
-          <button id="minus-button">-1</button>
-          <div id="dropdown"></div>
-          <button id="plus-button">+1</button>
+        <div class="chart-column" id="column2">
+          <div class="control-wrapper-2">
+            <div class="chart-row">
+              <label>Country: </label>
+              <select id="dropdown_country"></select>
+              <label>Data: </label>
+              <select id="dropdown_dataset"></select>
+            </div>
+          </div>
+            <div id="chartContainer"></div>
+            <div id="inventions-container"></div>
         </div>
-        <div class="map-container"></div>
-      </div>
-			<div class="chart-column" id="column2">
-        <label>Country: </label>
-        <select id="dropdown_country"></select>
-        <label>Data: </label>
-        <select id="dropdown_dataset"></select>
-        <div id="chartContainer"></div>
-        <div id="inventions-container"></div>
-
       </div>
     </div>
-    <!-- <button onclick="showSelectedOption()">Show Selected Option</button> -->
 
    <script>
     let zoomLevel = 100;

@@ -1,5 +1,9 @@
 body {
     background-color: #faf7f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1900px;
 }
 label {
     font-family:'Avenir', sans-serif;
@@ -27,6 +31,7 @@ ul {
 }
 
 #project-container{
+    align-items: center;
     width: 1900px;
     height: inherit;
 }
@@ -66,7 +71,8 @@ ul {
 
 
 svg {
-    border: 1px solid #ccc;
+    border: 1px solid #55c2da;
+    margin-right: 1px;
   }
   
 text {
@@ -123,7 +129,7 @@ text {
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 20px;
+    padding-bottom: 20px;
     row-gap: 20px
 }
 
@@ -149,7 +155,7 @@ button {
     color: rgb(76, 73, 73);
     font-weight: bold;
     background-color: #55c2da;
-    border-color: #55c2da;
+    border-color: #4fadc2;
     cursor: pointer;
 }
 
@@ -220,5 +226,20 @@ button:hover, input:hover {
   }
 
   #column2 {
-    margin-top: 66px;
+    /* margin-top: 26px; */
+  }
+
+  .control-wrapper-1{
+    border: 2px solid #55c2da;
+    border-right: white;
+    border-bottom: 1px #55c2da;
+    padding-top: 22px;
+  }
+
+  .control-wrapper-2{
+    border: 2px solid #55c2da;
+    border-left: white;
+    border-bottom: 1px #55c2da;
+    padding-top: 40px;
+    padding-bottom: 28px;
   }
