@@ -238,7 +238,7 @@ optionUpdate.on('change', function() {
 
  
     // setting svg size
-  const marginChart = { top: 80, right: 40, bottom: 40, left: 70 };
+  const marginChart = { top: 60, right: 40, bottom: 40, left: 70 };
   const widthChart = 900 - marginChart.right - marginChart.left;
   const heightChart = 350 - marginChart.top - marginChart.bottom;
 
@@ -295,7 +295,7 @@ optionUpdate.on('change', function() {
  const header = svg
  .append("g")
  .attr("class", "bar-chart-header")
- .attr("transform", `translate(240, -40)`)
+ .attr("transform", `translate(260, -20)`)
  .attr("font-size", "18px")
  .append("text")
 
@@ -454,7 +454,7 @@ optionUpdate.on('change', function() {
  const headerImg = svgImg
  .append("g")
  .attr("class", "image-chart-header")
- .attr("transform", `translate(200, 10)`)
+ .attr("transform", `translate(220, 10)`)
  .append("text")
  .text("World's inventions between 2000-2019")
 
@@ -487,6 +487,7 @@ images.on("mouseover", function(event, d) {
   }
 
   d3.select(this)
+    .raise()
     .transition()
     .duration(1000)
     .attr("x", widthImg / 2 - 350)
@@ -550,6 +551,7 @@ plusButton.on("click", function() {
         .attr("width", 300)
         .attr("height", 300)
         .style("opacity", 1)
+        .style("z-index", 99)
         .transition()
         .delay(intervalTime)
         .duration(500)
@@ -606,9 +608,6 @@ d3.selectAll(".zoom").on("click", function(){
 
 
   intervalColor = setInterval(changeColor, 1000);
-
-
-
 
 
 
