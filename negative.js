@@ -30,10 +30,10 @@ loadData();
 // method to read in datasets
 function loadData() {
     var promises = [];
-
-    promises.push(d3.csv("data/positive/countries_gdp_hist_filtered.csv"));
-    promises.push(d3.csv("data/positive/HDI_index.csv"));
-    promises.push(d3.csv("data/positive/schooling.csv"));
+    // primary energy consumption per capita (kWh/person)
+    promises.push(d3.csv("data/negative/co2_emissions_kt_by_country.csv"));
+    promises.push(d3.csv("data/negative/obesity-cleaned_filtered.csv"));
+    promises.push(d3.csv("data/negative/cause_of_deaths.csv"));
     promises.push(d3.json("data/europe.json"));
     promises.push(d3.csv("data/inventions/inventions.csv"));
 
@@ -43,7 +43,7 @@ function loadData() {
   }
 
   function dataLoaded(results) {
-
+    
     const intervalTime = 5000
     // getting data from promises array 
     const gdp = results[0];
@@ -51,7 +51,6 @@ function loadData() {
     const schooling = results[2];
     const countryData = results[3];
     const inventions = results[4];
-    console.log("inventions", inventions)
 
     // other functional objects 
     var densities = {};
@@ -149,8 +148,10 @@ optionUpdate.on('change', function() {
   const dropdownYear = dropdown.property("value");
   const filteredData = groupedByYearData.get(dropdownYear);
   const densitiesUpdate = {};
-  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
+  if(filteredData){
+    filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+    updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
+  }
 });
     
     const dropdownYear = dropdown.property("value");;
@@ -197,16 +198,16 @@ optionUpdate.on('change', function() {
 
     var buttonValue = d3.select("#time-laps-button1").node().value;
     console.log(buttonValue);
-    if(buttonValue === "Turn Off Time-laps"){
-           // Click the plus button every interval of seconds
-           isTimeLapOn = true;
-           timeLaps = setInterval(() => {
-            plusButtonInterval.node().click();
-          if(yearDataOption.length-1 == selectedOptionIndex){
-            selectedOptionIndex =0
-          }
-          }, intervalTime);
-    }
+    // if(buttonValue === "Turn Off Time-laps"){
+    //        // Click the plus button every interval of seconds
+    //        isTimeLapOn = true;
+    //        timeLaps = setInterval(() => {
+    //         plusButtonInterval.node().click();
+    //       if(yearDataOption.length-1 == selectedOptionIndex){
+    //         selectedOptionIndex =0
+    //       }
+    //       }, intervalTime);
+    // }
     
     //  button for the time-laps bind with its click event
       d3.select("#time-laps-button1").on("click", function () {
@@ -333,17 +334,21 @@ optionUpdate.on('change', function() {
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data =  prepareBarChartData(groupedGdp, currentCountry)
-        updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        if(filteredData){
+          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+          var data =  prepareBarChartData(groupedGdp, currentCountry)
+          updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        }
       } 
       else if (selectedOption === 'Human Development Index'){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data1 =  prepareBarChartDataIndex(groupedDevIndex, currentCountry)
-        updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        if(filteredData){
+          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+          var data1 =  prepareBarChartDataIndex(groupedDevIndex, currentCountry)
+          updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        }
 
       } 
       else if ( selectedOption === 'Mean - years of schooling'){
@@ -365,10 +370,11 @@ optionUpdate.on('change', function() {
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-
-        var data =  prepareBarChartData(groupedGdp, selectedOption)
-        updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        if(filteredData){
+          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+          var data =  prepareBarChartData(groupedGdp, selectedOption)
+          updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
+        }
       } 
       else if (currentDataset === 'Human Development Index'){
         const dropdownYear = dropdown.property("value");
@@ -600,7 +606,7 @@ function changeColor() {
   buttons.style("border", `2px solid ${colors[currentColor]}`);
   inputs.style("border", `2px solid ${colors[currentColor]}`);
 }
-d3.selectAll(".zoom").on("click", function(){
+d3.selectAll("zoom").on("click", function(){
   clearInterval(intervalColor)
   buttons.style("border", `2px solid #4fadc2`);
   inputs.style("border", `2px solid #4fadc2`);
@@ -679,7 +685,7 @@ function formatTicks(d) {
   } else if (d >= 1000000) {
     return (d / 1000000).toFixed(1) + "mil";
   } else if (d >= 1000) {
-    return (d / 1000).toFixed(0) + "k";
+    return (d / 1000).toFixed(1) + "k";
   } else {
     return d;
   }
@@ -765,7 +771,7 @@ headerElements.join(
         .style("fill", "lightblue")
         .transition()
         .duration(1000)
-        .attr("class", (d) => `bar-series ${selectedCountry}`)
+        .attr("class", (d) => `bar-series1 ${selectedCountry}`)
         .attr("x", d => xScaleBar(d.year))
         .attr("y", d => yScaleBar(d.value))
         .attr("width", xScaleBar.bandwidth())
@@ -892,7 +898,6 @@ headerElements.join(
     d3.select(this).style("stroke", "black").style("opacity", 1);
   })
   .on("mousemove", function (event, d) {
-    console.log("event", event)
     d3.select(this).style("fill", "dodgerblue");
     const className = d.properties.name.split(" ")[0];
     var density = densities[d.id] ? densities[d.id].toLocaleString() : "No Data";

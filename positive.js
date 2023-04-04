@@ -193,7 +193,11 @@ optionUpdate.on('change', function() {
     let timeLaps;
     let isTimeLapOn;
     let intervalColor;
+    let intervalCounter;
+    let timeLapsCounter = 4;
 
+    const timerElement = d3.select("#timer")
+          .append("text")
 
     var buttonValue = d3.select("#time-laps-button").node().value;
     console.log(buttonValue);
@@ -206,6 +210,22 @@ optionUpdate.on('change', function() {
             selectedOptionIndex =0
           }
           }, intervalTime);
+
+     
+    }
+    if(isTimeLapOn){
+     intervalCounter = setInterval(() => {
+        timerElement.join().text(timeLapsCounter)
+        if(timeLapsCounter==0){
+          timeLapsCounter = 4
+        }else {
+          timeLapsCounter-=1;
+        }
+      }, 1000) 
+    }else {
+    
+
+
     }
     
     //  button for the time-laps bind with its click event
@@ -223,6 +243,14 @@ optionUpdate.on('change', function() {
               selectedOptionIndex =0
             }
           }, intervalTime);
+          intervalCounter = setInterval(() => {
+            timerElement.join().text(timeLapsCounter)
+            if(timeLapsCounter==0){
+              timeLapsCounter = 4
+            }else {
+              timeLapsCounter-=1;
+            }
+          }, 1000) 
          
         }else {
           d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
@@ -232,6 +260,10 @@ optionUpdate.on('change', function() {
           clearInterval(intervalColor)
           buttons.style("border", `2px solid #4fadc2`);
           inputs.style("border", `2px solid #4fadc2`);
+
+          timeLapsCounter =4;
+          clearInterval(intervalCounter)
+          timerElement.join().text("")
         
         }
       });
@@ -679,7 +711,7 @@ function formatTicks(d) {
   } else if (d >= 1000000) {
     return (d / 1000000).toFixed(1) + "mil";
   } else if (d >= 1000) {
-    return (d / 1000).toFixed(0) + "k";
+    return (d / 1000).toFixed(1) + "k";
   } else {
     return d;
   }
