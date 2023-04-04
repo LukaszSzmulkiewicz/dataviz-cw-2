@@ -4,12 +4,12 @@ var width = 900;
 var height = 905;
 
 var svgMap = d3
-  .select(".map-container")
+  .select(".map-container1")
   .append("svg")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("class", "map");
+  .attr("class", "map1");
 
 var projection = d3
   .geoMercator()
@@ -20,9 +20,9 @@ var projection = d3
 var path = d3.geoPath().projection(projection);
 
 var tooltip = d3
-  .select(".map-container")
+  .select(".map-container1")
   .append("div")
-  .attr("class", "tooltip")
+  .attr("class", "tooltip1")
   .style("opacity", 0);
 
 loadData();
@@ -87,7 +87,7 @@ function loadData() {
     // preparing data for a bar chart
     const barChartDataGDP = prepareBarChartData(groupedGdp, 'Albania'); 
 
-    const dropdownDatasetMap = d3.select('#dropdown-dataset-map');
+    const dropdownDatasetMap = d3.select('#dropdown-dataset-map1');
 
     dataset_names.forEach(data => {
       dropdownDatasetMap.append('option')
@@ -96,7 +96,7 @@ function loadData() {
     });
    
    
-    var dropdown = d3.select("#dropdown")
+    var dropdown = d3.select("#dropdown1")
       .append("select")
       .attr("id", "dropdown-select");
 
@@ -108,7 +108,7 @@ function loadData() {
       .append("option")
       .text(function(d) { return d; });
 
-      const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map');
+      const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map1');
       dropdownDatasetMapUpdate.on('change', function() {
         const selectedOption = d3.select(this).property('value');
         if ( selectedOption === "Gross domestic product"){
@@ -143,7 +143,7 @@ function loadData() {
 
 
 
-const optionUpdate = d3.select("#dropdown")
+const optionUpdate = d3.select("#dropdown1")
 
 optionUpdate.on('change', function() {
   const dropdownYear = dropdown.property("value");
@@ -163,12 +163,12 @@ optionUpdate.on('change', function() {
 
         svgMap
       .append("g")
-      .attr("class", "countries")
+      .attr("class", "countries1")
       .selectAll("path")
       .data(countryData.features)
       .enter()
       .append("path")
-      .attr("class", (d) => `map-path ${d.properties.name}`)
+      .attr("class", (d) => `map-path1 ${d.properties.name}`)
       .attr("d", path)
       .style("fill", (d) => colorGdp(densities[d.id]))
       .style("stroke", "black")
@@ -177,7 +177,7 @@ optionUpdate.on('change', function() {
        //Draw header and subheader.
       const headerMap = svgMap
       .append("g")
-      .attr("class", "map-header")
+      .attr("class", "map-header1")
       .append("text")
       .attr("stroke-width", "2px")
       .attr("font-size", "19pt")
@@ -188,14 +188,14 @@ optionUpdate.on('change', function() {
 
     updateDensities(svgMap, filteredData, colorGdp, "2000")
     
-    const plusButtonInterval = d3.select("#plus-button");
+    const plusButtonInterval = d3.select("#plus-button1");
 
     let timeLaps;
     let isTimeLapOn;
     let intervalColor;
 
 
-    var buttonValue = d3.select("#time-laps-button").node().value;
+    var buttonValue = d3.select("#time-laps-button1").node().value;
     console.log(buttonValue);
     if(buttonValue === "Turn Off Time-laps"){
            // Click the plus button every interval of seconds
@@ -209,11 +209,11 @@ optionUpdate.on('change', function() {
     }
     
     //  button for the time-laps bind with its click event
-      d3.select("#time-laps-button").on("click", function () {
+      d3.select("#time-laps-button1").on("click", function () {
         // Toggle the brush state
-        var buttonValue = d3.select("#time-laps-button").node().value;
+        var buttonValue = d3.select("#time-laps-button1").node().value;
         if(buttonValue === "Turn On Time-laps"){
-          d3.select("#time-laps-button").attr("value", "Turn Off Time-laps");
+          d3.select("#time-laps-button1").attr("value", "Turn Off Time-laps");
           
           // Click the plus button every interval of seconds
           timeLaps = setInterval(() => {
@@ -225,7 +225,7 @@ optionUpdate.on('change', function() {
           }, intervalTime);
          
         }else {
-          d3.select("#time-laps-button").attr("value", "Turn On Time-laps");
+          d3.select("#time-laps-button1").attr("value", "Turn On Time-laps");
           // Clear the interval
           isTimeLapOn = false;
           clearInterval(timeLaps);
@@ -244,7 +244,7 @@ optionUpdate.on('change', function() {
 
   // Draw svg.
   const svg = d3
-    .select(`#chartContainer`)
+    .select(`#chartContainer1`)
     .append("svg")
     .attr("width", widthChart + marginChart.right + marginChart.left)
     .attr("height", heightChart + marginChart.top + marginChart.bottom)
@@ -294,7 +294,7 @@ optionUpdate.on('change', function() {
  //Draw header and subheader.
  const header = svg
  .append("g")
- .attr("class", "bar-chart-header")
+ .attr("class", "bar-chart-header1")
  .attr("transform", `translate(260, -20)`)
  .attr("font-size", "18px")
  .append("text")
@@ -305,7 +305,7 @@ optionUpdate.on('change', function() {
 
 // prepareDataYear(groupedGdpYear)
 
-    const dropdownCountry = d3.select('#dropdown_country');
+    const dropdownCountry = d3.select('#dropdown_country1');
 
     const countryDataOption = Array.from(groupedGdp, ([country, gdp]) => ({ country, gdp }))
       .sort((a, b) => d3.ascending(a.country, b.country));
@@ -317,17 +317,17 @@ optionUpdate.on('change', function() {
     });
       
 
-    const dropdownDataset = d3.select('#dropdown_dataset');
+    const dropdownDataset = d3.select('#dropdown_dataset1');
 
     dataset_names.forEach(data => {
       dropdownDataset.append('option')
         .attr('value', data)
         .text(data);
     });
-    const dropdownDatasetUpdate = d3.select('#dropdown_dataset');
+    const dropdownDatasetUpdate = d3.select('#dropdown_dataset1');
     dropdownDatasetUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
-      const currentCountry = d3.select("#dropdown_country").property("value");
+      const currentCountry = d3.select("#dropdown_country1").property("value");
       if ( selectedOption === "Gross domestic product"){
 
         const dropdownYear = dropdown.property("value");
@@ -357,10 +357,10 @@ optionUpdate.on('change', function() {
     });
 
         
-    const dropdownCountryUpdate = d3.select('#dropdown_country');
+    const dropdownCountryUpdate = d3.select('#dropdown_country1');
     dropdownCountryUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
-      const currentDataset = d3.select("#dropdown_dataset").property("value");
+      const currentDataset = d3.select("#dropdown_dataset1").property("value");
       if ( currentDataset === "Gross domestic product"){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
@@ -400,7 +400,7 @@ optionUpdate.on('change', function() {
     console.log("inventions data", inventionsData)
     // Drawing svg for inventions chart
     const svgImg = d3
-    .select(`#inventions-container`)
+    .select(`#inventions-container1`)
     .append("svg")
     .attr("width", widthImg + marginImg.right + marginImg.left)
     .attr("height", heightImg + marginImg.top + marginImg.bottom)
@@ -453,7 +453,7 @@ optionUpdate.on('change', function() {
   //Draw header and subheader.
  const headerImg = svgImg
  .append("g")
- .attr("class", "image-chart-header")
+ .attr("class", "image-chart-header1")
  .attr("transform", `translate(220, 10)`)
  .append("text")
  .text("World's inventions between 2000-2019")
@@ -467,7 +467,7 @@ optionUpdate.on('change', function() {
   .data(inventionsData) // limit to first 10 data points
   .enter()
   .append("image")
-  .attr("class", (d, i ) => `image` + d.year)
+  .attr("class", (d, i ) => `image1` + d.year)
   .attr("x", function(d) { return xScaleImg(d.year); })
   .attr("y", function(d) { return yScaleImg(d.value) -5; })
   .attr("width", 30)
@@ -504,7 +504,7 @@ images.on("mouseover", function(event, d) {
     .attr("height", 30)
     .style("opacity", 0.4);
     
-    d3.select(".tooltip-inventions")
+    d3.select(".tooltip-inventions1")
     .html(
       "<strong>"+ d.value +" - " +d.year +
         "</strong><br>"+ d.description
@@ -523,13 +523,13 @@ images.on("mouseover", function(event, d) {
 
 // 
 const tooltipImg = d3
-  .select("#inventions-container")
+  .select("#inventions-container1")
   .append("div")
-  .attr("class", "tooltip-inventions")
+  .attr("class", "tooltip-inventions1")
   .style("opacity", 0);
 
-var plusButton = d3.select("#plus-button");
-var minusButton = d3.select("#minus-button");
+var plusButton = d3.select("#plus-button1");
+var minusButton = d3.select("#minus-button1");
 
 plusButton.on("click", function() {
   selectedOptionIndex = Math.min(selectedOptionIndex + 1, yearDataOption.length - 1);
@@ -543,7 +543,7 @@ plusButton.on("click", function() {
     if(isTimeLapOn)
     {
       const selectedImageData = d3.select(`image.image${dropdownYear}`).datum();
-        d3.select(`image.image${dropdownYear}`)
+        d3.select(`image.image1${dropdownYear}`)
         .transition()
         .duration(1000)
         .attr("x", widthImg / 2 - 350)
@@ -561,7 +561,7 @@ plusButton.on("click", function() {
         .attr("height", 30)
         .style("opacity", 0.4);
         
-        d3.select(".tooltip-inventions")
+        d3.select(".tooltip-inventions1")
         .html(
           "<strong>"+ selectedImageData.value +" - " +selectedImageData.year +
             "</strong><br>"+ selectedImageData.description
@@ -593,7 +593,7 @@ minusButton.on("click", function() {
 var colors = ["red","#4fadc2"];
 var currentColor = 0;
 var buttons = d3.selectAll("button")
-var inputs = d3.selectAll("#time-laps-button")
+var inputs = d3.selectAll("#time-laps-button1")
 
 function changeColor() {
   currentColor = (currentColor + 1) % colors.length;
@@ -691,11 +691,11 @@ function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, 
    console.log("data in update", densities)
 
   // getting selected country from drop down
-   let selectedCountry = d3.select('#dropdown_country').property("value")
+   let selectedCountry = d3.select('#dropdown_country1').property("value")
     selectedCountry? selectedCountry = selectedCountry : selectedCountry = "Albania";
   
   // update header
-  const headerElements = d3.select(".bar-chart-header text");
+  const headerElements = d3.select(".bar-chart-header1 text");
   const headerText = data[0].header
 // append a new text element to each header element
 headerElements.join(
@@ -741,7 +741,7 @@ headerElements.join(
     .style("font-weight", "bold");
 
     // Create a update selection: bind to the new data
-   const u = svgChart.selectAll('.bar-series')
+   const u = svgChart.selectAll('.bar-series1')
    
    .data(data, d => d.year)
   // draw bars
@@ -751,7 +751,7 @@ headerElements.join(
         .append("rect")   
         .transition()
         .duration(1500)  
-        .attr("class", (d) => `bar-series ${selectedCountry}`)
+        .attr("class", (d) => `bar-series1 ${selectedCountry}`)
         .attr("x", d => xScaleBar(d.year))
         .attr("y", d => yScaleBar(d.value))
         .attr("width", xScaleBar.bandwidth())
@@ -784,7 +784,7 @@ headerElements.join(
       const className = d.country.split(" ")[0];
       d3.selectAll(`path.${className}`).style("fill", "dodgerblue");
       // var density = densities[d.id] ? densities[d.id].toLocaleString() : "N/A";
-      d3.select(".tooltip-chart")
+      d3.select(".tooltip-chart1")
           // .html(
           //   // "<strong>" +
           //   //   d.country +
@@ -837,11 +837,11 @@ function getColors(densityData) {
 }
 
 function updateDensities(svgMap, filteredData, color, year){
-  const headerElements = d3.select(".map-header text");
+  const headerElements = d3.select(".map-header1 text");
   let headerText;
   let tooltipText;
   // getting selected dataset from drop down
-  let selectedDataset = d3.select('#dropdown-dataset-map').property("value")
+  let selectedDataset = d3.select('#dropdown-dataset-map1').property("value")
 
   if ( selectedDataset === "Gross domestic product")
   {
@@ -875,7 +875,7 @@ headerElements.join(
   const densities = {};
   filteredData.forEach((x) => (densities[x.country_code] = +x.value));
 
-  const u = svgMap.selectAll('.map-path')
+  const u = svgMap.selectAll('.map-path1')
   u.join(
     enter => enter,
   
@@ -892,13 +892,11 @@ headerElements.join(
     d3.select(this).style("stroke", "black").style("opacity", 1);
   })
   .on("mousemove", function (event, d) {
+    console.log("event", event)
     d3.select(this).style("fill", "dodgerblue");
     const className = d.properties.name.split(" ")[0];
-    // d3.selectAll(`.${className}`).style("fill", "dodgerblue");
     var density = densities[d.id] ? densities[d.id].toLocaleString() : "No Data";
-    console.log("event page", event.pageX)
-
-    d3.select(".tooltip")
+    d3.select(".tooltip1")
       .html(
         "<strong>" + d.properties.name +
           "</strong><br>"+ tooltipText +": " + density
@@ -906,16 +904,13 @@ headerElements.join(
       .transition()
       .duration(150)
       .style("opacity", 0.9)
-      .style("left", event.pageX  + "px")
-      .style("top", event.pageY  + "px");
+      .style("left",event.screenX -80 + "px")
+      .style("top", event.screenY - 80  + "px");
   })
   .on("mouseout", function (event, d) {
     d3.select(this).style("fill", (d) => color(densities[d.id]));
-    // const className = d.properties.name.split(" ")[0];
-    // d3.selectAll(`.${className}`).style("fill", (d) =>
-    //   color(densities[d.id])
-    // );
-    d3.selectAll(".tooltip").transition().duration(500).style("opacity", 0);
+   
+    d3.selectAll(".tooltip1").transition().duration(500).style("opacity", 0);
   });
 
 

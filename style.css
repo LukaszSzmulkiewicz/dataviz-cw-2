@@ -35,7 +35,7 @@ ul {
     width: 1900px;
     height: inherit;
 }
- .tooltip, .tooltip-inventions {
+ .tooltip, .tooltip-inventions, .tooltip1, .tooltip-inventions1 {
     position: absolute;
     text-align: center;
     background-color: white;
@@ -51,7 +51,7 @@ ul {
     z-index: 9999;
 }
 
- .tooltip-inventions {
+ .tooltip-inventions, .tooltip-inventions1 {
     position: absolute;
     text-align: center;
     margin-left: 40px;
@@ -157,6 +157,7 @@ button {
     background-color: #55c2da;
     border-color: #4fadc2;
     cursor: pointer;
+    
 }
 
  input {
@@ -207,7 +208,10 @@ button:hover, input:hover {
 
   #dropdown_dataset, #dropdown_country, 
   #dropdown-dataset-map, #dropdown-select, 
-  button, input, #inventions-container{
+  button, input, #inventions-container,
+  #dropdown_dataset1, #dropdown_country1, 
+  #dropdown-dataset-map1, #dropdown-select1, 
+  button, input, #inventions-container1{
     font-size: 18px;
   }
 

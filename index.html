@@ -14,6 +14,9 @@
     </head>
   <body>
     <script type="module" src="positive.js"></script>
+    <script type="module" src="negative.js"></script>
+    <div class="chart-column">
+
     <div id="project-container">
       <div class="chart-row">
         <div class="chart-column">
@@ -50,6 +53,45 @@
         </div>
       </div>
     </div>
+    <div id="project-container1">
+      <div class="chart-row">
+        <div class="chart-column">
+          <div class="control-wrapper-1">
+            <div class="chart-row">
+              <label>Zoom control: </label>
+              <button class="zoom" onclick="zoomOut()">Zoom Out</button>
+              <button class="zoom" onclick="zoomIn()">Zoom In</button>
+              <label>Time-laps control: </label>
+              <input type="button" id="time-laps-button1" value="Turn Off Time-laps">
+            </div>
+            <div class="chart-row">
+              <label>Data: </label>
+              <select id="dropdown-dataset-map1"></select>
+              <label>Year: </label>
+              <button id="minus-button1">-1</button>
+              <div id="dropdown1"></div>
+              <button id="plus-button1">+1</button>
+            </div>
+          </div>
+          <div class="map-container1"></div>
+        </div>
+        <div class="chart-column" id="column2">
+          <div class="control-wrapper-2">
+            <div class="chart-row">
+              <label>Country: </label>
+              <select id="dropdown_country1"></select>
+              <label>Data: </label>
+              <select id="dropdown_dataset1"></select>
+            </div>
+          </div>
+            <div id="chartContainer1"></div>
+            <div id="inventions-container1"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    
 
    <script>
     let zoomLevel = 100;
