@@ -1,4 +1,4 @@
-
+import { getColors, prepareBarChartData, getData } from "./helper.js";
 
 var width = 900;
 var height = 905;
@@ -482,7 +482,7 @@ images.on("mouseover", function(event, d) {
     .raise()
     .transition()
     .duration(1000)
-    .attr("x", widthImg / 2 - 350)
+    .attr("x", widthImg / 2 - 150)
     .attr("y", heightImg / 2 - 250)
     .attr("width", 300)
     .attr("height", 300)
@@ -504,7 +504,7 @@ images.on("mouseover", function(event, d) {
     .transition()
     .duration(1000)
     .style("opacity", 1)
-    .style("left",  browserWidth/2 + "px")
+    .style("left",   1150 + "px")
     .style("top",  setHight + "px")
     .transition()
     .delay(intervalTime-2000)
@@ -538,7 +538,7 @@ plusButton.on("click", function() {
         d3.select(`image.image${dropdownYear}`)
         .transition()
         .duration(1000)
-        .attr("x", widthImg / 2 - 350)
+        .attr("x", widthImg / 2 - 150)
         .attr("y", heightImg / 2 - 250)
         .attr("width", 300)
         .attr("height", 300)
@@ -561,7 +561,7 @@ plusButton.on("click", function() {
         .transition()
         .duration(1000)
         .style("opacity", 1)
-        .style("left",  browserWidth/2 + "px")
+        .style("left",  1150 + "px")
         .style("top",  setHight + "px")
         .transition()
         .delay(intervalTime-2000)
@@ -603,26 +603,6 @@ d3.selectAll(".zoom").on("click", function(){
 }
 
 
-function getData(groupedByYearCollection, dataset) {
-  const dataSet = groupedByYearCollection[dataset]
-  const color =  groupedByYearCollection[dataset].color;
-  const dataObject = [dataSet, color]; 
-  return dataObject;
-}
-
-  function prepareBarChartData(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
-
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-    }));
-  
-    return dataArray;
-  }
 
   function prepareInventionsData(data){
       // converting the map to the array of objects key at index 0 and value at index 1
@@ -779,26 +759,6 @@ headerElements.join(
      .attr("transform", "rotate(-22)")
 
 }
-// function used to prepare color scale for map and bar chart
-function getColors(densityData) {
-  var sortedDensities = densityData
-    .map((x) => parseInt(x.value))
-    .sort(function (a, b) {
-      return parseInt(a) - parseInt(b);
-    });
-  var maxDensity = d3.max(sortedDensities);
-
-
-  var oranges = ["white"]; // create lower bound for thresholds
-
-  // Map the sorted densities to colors using the interpolate function
-  sortedDensities.forEach((x) => {
-    var color = d3.interpolateReds(x / maxDensity);
-    oranges.push(color);
-  });
-
-  return d3.scaleThreshold().domain(sortedDensities).range(oranges);
-}
 
 function updateDensities(svgMap, filteredData, color, year){
   const headerElements = d3.select(".map-header text");
@@ -817,7 +777,7 @@ function updateDensities(svgMap, filteredData, color, year){
     tooltipText = "HDI";
   } else if (selectedDataset === 'Mean - years of schooling') 
   {
-    headerText = "Mean - years of schooling in Europe, year: " + year;
+    headerText = "Average - years of schooling in Europe, year: " + year;
     tooltipText = "AVG years";
   } else {
     headerText = "Gross Domestic product in Europe, year: " + year;

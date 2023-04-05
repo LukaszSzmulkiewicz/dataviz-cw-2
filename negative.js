@@ -1,4 +1,4 @@
-
+import { prepareBarChartData, getColors, getData } from "./helper.js";
 
 var width = 900;
 var height = 905;
@@ -35,7 +35,7 @@ function loadData() {
     promises.push(d3.csv("data/negative/obesity-cleaned_filtered.csv"));
     promises.push(d3.csv("data/negative/cause_of_deaths.csv"));
     promises.push(d3.json("data/europe.json"));
-    promises.push(d3.csv("data/inventions/inventions.csv"));
+    promises.push(d3.csv("data/disasters/disasters.csv"));
 
     
   
@@ -50,7 +50,7 @@ function loadData() {
     const obesity = results[1];
     const diabetes = results[2];
     const countryData = results[3];
-    const inventions = results[4];
+    const disasters = results[4];
 
     // other functional objects 
     var densities = {};
@@ -63,7 +63,7 @@ function loadData() {
     var colorDiabetes = getColors(diabetes); 
     var color =colorEmissions;
 
-    console.log("gdp", emissions);
+    // console.log("gdp", emissions);
     // console.log("dev index", development_idex);
     // console.log("schooling", schooling);
 
@@ -77,12 +77,33 @@ function loadData() {
     const groupedObesityYear = d3.group(obesity, d => d.year);
     const groupedDiabetesYear = d3.group(diabetes, d => d.year);
 
+    const groupedByCollection = {
+      'CO2 Emissions by country': {
+        dataByYear: groupedEmissionsYear,
+        dataByCountry: groupedEmissions,
+        color: colorEmissions,
+        header: "CO2 Emissions by country (kt)"
+      },
+      'Obesity among adults by country': {
+        dataByYear: groupedObesityYear,
+        dataByCountry: groupedObesity,
+        color: colorObesity,
+        header: "Obesity among adults (%) by country:"
+      },
+      'Deaths from diabetes by country': {
+        dataByYear: groupedDiabetesYear,
+        dataByCountry: groupedDiabetes,
+        color: colorDiabetes,
+        header: "Deaths from diabetes by country: "
+      }
+    }
+
     // initiating data by year for map display
     let groupedByYearData = groupedEmissionsYear;
       
       console.log("grouped by year map", groupedEmissionsYear)
     // preparing data for a bar chart
-    const barChartDataGDP = prepareBarChartData(groupedEmissions, 'Albania'); 
+    const barChartData = prepareBarChartData(groupedEmissions, 'Albania'); 
 
     const dropdownDatasetMap = d3.select('#dropdown-dataset-map1');
 
@@ -108,33 +129,15 @@ function loadData() {
       const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map1');
       dropdownDatasetMapUpdate.on('change', function() {
         const selectedOption = d3.select(this).property('value');
-        if ( selectedOption === "CO2 Emissions by country"){
-          groupedByYearData = groupedEmissionsYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorEmissions; 
+        const setFromCollection = getData(groupedByCollection, selectedOption);
+        groupedByYearData = setFromCollection[0].dataByYear;
+        const filteredData = groupedByYearData.get(dropdownYear)
+          color = setFromCollection[1]; 
           selectedOptionIndex = 0;
           const densitiesUpdate = {};
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
           updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        } 
-        else if (selectedOption === 'Obesity among adults by country'){
-          groupedByYearData = groupedObesityYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          selectedOptionIndex = 0;
-          color = colorObesity; 
-          const densitiesUpdate = {};
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        } 
-        else if ( selectedOption === 'Deaths from diabetes by country'){
-          groupedByYearData = groupedDiabetesYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorDiabetes; 
-          selectedOptionIndex = 0;
-          const densitiesUpdate = {};
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.avg_years_of_schooling));
-          updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        }
+    
         console.log("changing the datasets: ", groupedByYearData);
       });
 
@@ -253,7 +256,7 @@ optionUpdate.on('change', function() {
   // Scale data.
   // shows the dates
   const xScale = d3.scaleBand()
-  .domain(barChartDataGDP.map(d => d.year))
+  .domain(barChartData.map(d => d.year))
   .range([0, widthChart])
   .padding(0.2);
 
@@ -272,7 +275,7 @@ optionUpdate.on('change', function() {
 
 
   // the chart should start from 0 so getting a max
-  const yMax = d3.max(barChartDataGDP, (d) => d.value);
+  const yMax = d3.max(barChartData, (d) => d.value);
 
   const yScale = d3.scaleLinear()
     // array with minimum and maximum values mapping from the domain to range values
@@ -298,8 +301,9 @@ optionUpdate.on('change', function() {
  .attr("font-size", "18px")
  .append("text")
 
+ const initialHeader = groupedByCollection["CO2 Emissions by country"].header
 
-  updateBarChart(barChartDataGDP, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densities, color)
+  updateBarChart(barChartData, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densities, color, initialHeader)
 
 
 // prepareDataYear(groupedGdpYear)
@@ -327,36 +331,15 @@ optionUpdate.on('change', function() {
     dropdownDatasetUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentCountry = d3.select("#dropdown_country1").property("value");
-      if ( selectedOption === "CO2 Emissions by country"){
-
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        if(filteredData){
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data =  prepareBarChartData(groupedEmissions, currentCountry)
-          updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-        }
-      } 
-      else if (selectedOption === 'Obesity among adults by country'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        if(filteredData){
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data1 =  prepareBarChartDataIndex(groupedObesity, currentCountry)
-          updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-        }
-
-      } 
-      else if ( selectedOption === 'Deaths from diabetes by country'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedDiabetes, currentCountry)
-        updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-      }
+      const setFromCollection = getData(groupedByCollection, selectedOption);
+      const groupedByYearData = setFromCollection[0].dataByYear;
+      const dropdownYear = dropdown.property("value");
+      const filteredData = groupedByYearData.get(dropdownYear)
+      const header = setFromCollection[0].header
+      const densitiesUpdate = {};
+      filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+      var data =  prepareBarChartData(setFromCollection[0].dataByCountry, currentCountry)
+      updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color, header)
     });
 
         
@@ -364,34 +347,16 @@ optionUpdate.on('change', function() {
     dropdownCountryUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentDataset = d3.select("#dropdown_dataset1").property("value");
-      if ( currentDataset === "CO2 Emissions by country"){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        if(filteredData){
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data =  prepareBarChartData(groupedEmissions, selectedOption)
-          updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-        }
-      } 
-      else if (currentDataset === 'Obesity among adults by country'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data1 =  prepareBarChartDataIndex(groupedObesity, selectedOption)
-        updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-
-      } else if ( currentDataset ==='Deaths from diabetes by country'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedDiabetes, selectedOption)
-        updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-
-      }
-
+      const setFromCollection = getData(groupedByCollection, currentDataset);
+      const groupedByYearData = setFromCollection[0].dataByYear;
+      const dropdownYear = dropdown.property("value");
+      const header = setFromCollection[0].header
+      const filteredData = groupedByYearData.get(dropdownYear)
+      const densitiesUpdate = {};
+      filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+      var data =  prepareBarChartData(setFromCollection[0].dataByCountry, selectedOption)
+      updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color, header)
+    
     });
 
        // setting svg size
@@ -400,11 +365,10 @@ optionUpdate.on('change', function() {
     const heightImg = 550 - marginImg.top - marginImg.bottom;
 
     // preparing data
-    const inventionsData = prepareInventionsData(inventions);
-    console.log("inventions data", inventionsData)
+    const disastersData = prepareInventionsData(disasters);
     // Drawing svg for inventions chart
     const svgImg = d3
-    .select(`#inventions-container1`)
+    .select(`#disasters-container`)
     .append("svg")
     .attr("width", widthImg + marginImg.right + marginImg.left)
     .attr("height", heightImg + marginImg.top + marginImg.bottom)
@@ -413,17 +377,17 @@ optionUpdate.on('change', function() {
 
      // shows the dates
     const xScaleImg = d3.scaleBand()
-    .domain(inventionsData.map(d => d.year))
+    .domain(disastersData.map(d => d.year))
     .range([0, widthImg])
     .padding(0.2);
 
     
     // Defining the y-axis scale
     const yScaleImg = d3.scaleBand()
-  .domain(inventionsData.map(d => d.value))
+  .domain(disastersData.map(d => d.value))
   .range([heightImg, 0])
   .padding(0.2);
-    console.log("data map", inventionsData.map(d => d.year)) 
+    console.log("data map", disastersData.map(d => d.year)) 
 
   // Creating the y-axis
   const yAxisImg = d3.axisLeft(yScaleImg)
@@ -460,7 +424,7 @@ optionUpdate.on('change', function() {
  .attr("class", "image-chart-header1")
  .attr("transform", `translate(220, 10)`)
  .append("text")
- .text("World's inventions between 2000-2019")
+ .text("World's disasters between 2000-2019")
 
   let browserWidth; 
   let browserHeight;
@@ -468,7 +432,7 @@ optionUpdate.on('change', function() {
 
   //appending images
  const images = svgImg.selectAll("image")
-  .data(inventionsData) // limit to first 10 data points
+  .data(disastersData) // limit to first 10 data points
   .enter()
   .append("image")
   .attr("class", (d, i ) => `image1` + d.year)
@@ -476,7 +440,7 @@ optionUpdate.on('change', function() {
   .attr("y", function(d) { return yScaleImg(d.value) -5; })
   .attr("width", 30)
   .attr("height", 30)
-  .attr("xlink:href", function(d) { return `data/inventions/${d.image}`; })
+  .attr("xlink:href", function(d) { return `data/disasters/${d.image}`; })
   .attr("opacity", 0.4);
 
   // Defining the mouseover behavior
@@ -494,7 +458,7 @@ images.on("mouseover", function(event, d) {
     .raise()
     .transition()
     .duration(1000)
-    .attr("x", widthImg / 2 - 350)
+    .attr("x", widthImg / 2 - 150)
     .attr("y", heightImg / 2 - 250)
     .attr("width", 300)
     .attr("height", 300)
@@ -516,7 +480,7 @@ images.on("mouseover", function(event, d) {
     .transition()
     .duration(1000)
     .style("opacity", 1)
-    .style("left",  browserWidth/2 + "px")
+    .style("left",  browserWidth/2 + 80 + "px")
     .style("top",  setHight + "px")
     .transition()
     .delay(intervalTime-2000)
@@ -527,7 +491,7 @@ images.on("mouseover", function(event, d) {
 
 // 
 const tooltipImg = d3
-  .select("#inventions-container1")
+  .select("#disasters-container")
   .append("div")
   .attr("class", "tooltip-inventions1")
   .style("opacity", 0);
@@ -546,11 +510,11 @@ plusButton.on("click", function() {
   updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
     if(isTimeLapOn)
     {
-      const selectedImageData = d3.select(`image.image${dropdownYear}`).datum();
+      const selectedImageData = d3.select(`image.image1${dropdownYear}`).datum();
         d3.select(`image.image1${dropdownYear}`)
         .transition()
         .duration(1000)
-        .attr("x", widthImg / 2 - 350)
+        .attr("x", widthImg / 2 - 150)
         .attr("y", heightImg / 2 - 250)
         .attr("width", 300)
         .attr("height", 300)
@@ -614,21 +578,6 @@ d3.selectAll("zoom").on("click", function(){
 
 }
 
-  function prepareBarChartData(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
-
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-      header: "CO2 Emissions by country (kt)"
-    }));
-  
-    return dataArray;
-  }
-
   function prepareBarChartDataIndex(data, selectedOption) {
     const filteredData = data.get(selectedOption)
 
@@ -691,7 +640,7 @@ function formatTicks(d) {
 
 
 // function used to draw bar chart, contains mouse events for tooltip and styling changes on hover
-function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, yAxis, height, densities,color){
+function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, yAxis, height, densities, color, header){
    console.log("data in update", densities)
 
   // getting selected country from drop down
@@ -700,11 +649,10 @@ function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, 
   
   // update header
   const headerElements = d3.select(".bar-chart-header1 text");
-  const headerText = data[0].header
 // append a new text element to each header element
 headerElements.join(
   enter => enter  
-  .text(`${headerText}: ${selectedCountry}`)
+  .text(`${header}: ${selectedCountry}`)
   .attr("fill", "white")
   .transition()
   .duration(1500)
@@ -714,7 +662,7 @@ headerElements.join(
   update =>update
   .transition()
   .duration(0)
-  .text(`${headerText}: ${selectedCountry}`)
+  .text(`${header}: ${selectedCountry}`)
   .attr("fill", "white")
   .transition()
   .duration(1500)
@@ -816,28 +764,6 @@ headerElements.join(
      d3.selectAll(".xAxis .tick text")
      .attr("transform", "rotate(-22)")
 
-}
-// function used to prepare color scale for map and bar chart
-function getColors(densityData) {
-  console.log("i am getting new colors")
-  var sortedDensities = densityData
-    .map((x) => parseInt(x.value))
-    .sort(function (a, b) {
-      return parseInt(a) - parseInt(b);
-    });
-  var maxDensity = d3.max(sortedDensities);
-
-  console.log("sored densities", maxDensity)
-
-  var oranges = ["white"]; // create lower bound for thresholds
-
-  // Map the sorted densities to colors using the interpolate function
-  sortedDensities.forEach((x) => {
-    var color = d3.interpolateReds(x / maxDensity);
-    oranges.push(color);
-  });
-
-  return d3.scaleThreshold().domain(sortedDensities).range(oranges);
 }
 
 function updateDensities(svgMap, filteredData, color, year){
