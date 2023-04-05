@@ -36,7 +36,6 @@ function loadData() {
     promises.push(d3.csv("data/positive/schooling.csv"));
     promises.push(d3.json("data/europe.json"));
     promises.push(d3.csv("data/inventions/inventions.csv"));
-
     
   
     Promise.all(promises).then(dataLoaded);
@@ -79,7 +78,7 @@ function loadData() {
     const groupedDevIndexYear = d3.group(development_idex, d => d.year);
     const groupedSchoolingYear = d3.group(schooling, d => d.year);
 
-    const groupedByYearCollection = {
+    const groupedByCollection = {
       'Gross domestic product': {
         dataByYear: groupedGdpYear,
         dataByCountry: groupedGdp,
@@ -101,18 +100,11 @@ function loadData() {
       
     }
 
-    function getData(groupedByYearCollection, dataset) {
-      
-      const dataSet = groupedByYearCollection[dataset]
-      const color =  groupedByYearCollection[dataset].color;
-      const dataObject = [dataSet, color]; 
-      return dataObject;
-    }
 
     // initiating data by year for map display
     let groupedByYearData = groupedGdpYear;
       
-    // preparing data for a bar chart
+    // preparing initial data for a bar chart
     const barChartDataGDP = prepareBarChartData(groupedGdp, 'Albania'); 
 
     const dropdownDatasetMap = d3.select('#dropdown-dataset-map');
@@ -138,7 +130,7 @@ function loadData() {
       const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map');
       dropdownDatasetMapUpdate.on('change', function() {
         const selectedOption = d3.select(this).property('value');
-        const setFromCollection = getData(groupedByYearCollection, selectedOption);
+        const setFromCollection = getData(groupedByCollection, selectedOption);
         groupedByYearData = setFromCollection[0].dataByYear;
         const filteredData = groupedByYearData.get(dropdownYear)
           color = setFromCollection[1]; 
@@ -337,11 +329,12 @@ function loadData() {
  .attr("transform", `translate(260, -20)`)
  .attr("font-size", "18px")
  .append("text")
-  const initialHeader = groupedByYearCollection["Gross domestic product"].header
+
+
+  const initialHeader = groupedByCollection["Gross domestic product"].header
   updateBarChart(barChartDataGDP, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densities, color, initialHeader)
 
 
-// prepareDataYear(groupedGdpYear)
 
     const dropdownCountry = d3.select('#dropdown_country');
 
@@ -365,7 +358,7 @@ function loadData() {
     dropdownDatasetUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentCountry = d3.select("#dropdown_country").property("value");
-      const setFromCollection = getData(groupedByYearCollection, selectedOption);
+      const setFromCollection = getData(groupedByCollection, selectedOption);
       const groupedByYearData = setFromCollection[0].dataByYear;
       const dropdownYear = dropdown.property("value");
       const filteredData = groupedByYearData.get(dropdownYear)
@@ -381,7 +374,7 @@ function loadData() {
     dropdownCountryUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentDataset = d3.select("#dropdown_dataset").property("value");
-      const setFromCollection = getData(groupedByYearCollection, currentDataset);
+      const setFromCollection = getData(groupedByCollection, currentDataset);
       const groupedByYearData = setFromCollection[0].dataByYear;
       const dropdownYear = dropdown.property("value");
       const header = setFromCollection[0].header
@@ -607,6 +600,14 @@ d3.selectAll(".zoom").on("click", function(){
 
   intervalColor = setInterval(changeColor, 1000);
 
+}
+
+
+function getData(groupedByYearCollection, dataset) {
+  const dataSet = groupedByYearCollection[dataset]
+  const color =  groupedByYearCollection[dataset].color;
+  const dataObject = [dataSet, color]; 
+  return dataObject;
 }
 
   function prepareBarChartData(data, selectedOption) {
