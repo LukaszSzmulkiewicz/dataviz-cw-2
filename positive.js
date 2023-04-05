@@ -51,7 +51,6 @@ function loadData() {
     const schooling = results[2];
     const countryData = results[3];
     const inventions = results[4];
-    console.log("inventions", inventions)
 
     // other functional objects 
     var densities = {};
@@ -66,7 +65,7 @@ function loadData() {
 
 
 
-    console.log("gdp", gdp);
+    // console.log("gdp", gdp);
     // console.log("dev index", development_idex);
     // console.log("schooling", schooling);
 
@@ -80,10 +79,39 @@ function loadData() {
     const groupedDevIndexYear = d3.group(development_idex, d => d.year);
     const groupedSchoolingYear = d3.group(schooling, d => d.year);
 
+    const groupedByYearCollection = {
+      'Gross domestic product': {
+        dataByYear: groupedGdpYear,
+        dataByCountry: groupedGdp,
+        color: colorGdp,
+        header: "Gross Domestic product (Total)"
+      },
+      'Human Development Index': {
+        dataByYear: groupedDevIndexYear,
+        dataByCountry: groupedDevIndex,
+        color: colorIndex,
+        header: "Human Development Index"
+      },
+      'Mean - years of schooling': {
+        dataByYear: groupedSchoolingYear,
+        dataByCountry: groupedSchooling,
+        color: colorSchooling,
+        header: "Average Years of Schooling"
+      }
+      
+    }
+
+    function getData(groupedByYearCollection, dataset) {
+      
+      const dataSet = groupedByYearCollection[dataset]
+      const color =  groupedByYearCollection[dataset].color;
+      const dataObject = [dataSet, color]; 
+      return dataObject;
+    }
+
     // initiating data by year for map display
     let groupedByYearData = groupedGdpYear;
       
-      console.log("grouped by year map", groupedGdpYear)
     // preparing data for a bar chart
     const barChartDataGDP = prepareBarChartData(groupedGdp, 'Albania'); 
 
@@ -101,7 +129,6 @@ function loadData() {
       .attr("id", "dropdown-select");
 
   const yearDataOption =  Array.from(groupedByYearData.keys());
-    console.log("grouped by year", yearDataOption)
     var options = dropdown.selectAll("option")
       .data(yearDataOption)
       .enter()
@@ -111,54 +138,34 @@ function loadData() {
       const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map');
       dropdownDatasetMapUpdate.on('change', function() {
         const selectedOption = d3.select(this).property('value');
-        if ( selectedOption === "Gross domestic product"){
-          groupedByYearData = groupedGdpYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorGdp; 
+        const setFromCollection = getData(groupedByYearCollection, selectedOption);
+        groupedByYearData = setFromCollection[0].dataByYear;
+        const filteredData = groupedByYearData.get(dropdownYear)
+          color = setFromCollection[1]; 
           selectedOptionIndex = 0;
           const densitiesUpdate = {};
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
           updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        } 
-        else if (selectedOption === 'Human Development Index'){
-          groupedByYearData = groupedDevIndexYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          selectedOptionIndex = 0;
-          color = colorIndex; 
-          const densitiesUpdate = {};
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        } 
-        else if ( selectedOption === 'Mean - years of schooling'){
-          groupedByYearData = groupedSchoolingYear;
-          const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorSchooling; 
-          selectedOptionIndex = 0;
-          const densitiesUpdate = {};
-          filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.avg_years_of_schooling));
-          updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-        }
-        console.log("changing the datasets: ", groupedByYearData);
+     
       });
 
 
 
-const optionUpdate = d3.select("#dropdown")
+      const optionUpdate = d3.select("#dropdown")
 
-optionUpdate.on('change', function() {
-  const dropdownYear = dropdown.property("value");
-  const filteredData = groupedByYearData.get(dropdownYear);
-  const densitiesUpdate = {};
-  filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-  updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
-});
+      optionUpdate.on('change', function() {
+        const dropdownYear = dropdown.property("value");
+        const filteredData = groupedByYearData.get(dropdownYear);
+        const densitiesUpdate = {};
+        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+        updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
+      });
     
     const dropdownYear = dropdown.property("value");;
     const filteredData = groupedByYearData.get(dropdownYear)
     
     densities = {};
     filteredData.forEach((x) => (densities[x.country_code] = +x.value));
-    // console.log("data by year in function", densities)
 
 
         svgMap
@@ -202,7 +209,6 @@ optionUpdate.on('change', function() {
             .append("text")
 
     var buttonValue = d3.select("#time-laps-button").node().value;
-    console.log(buttonValue);
     if(buttonValue === "Turn Off Time-laps"){
            // Click the plus button every interval of seconds
            isTimeLapOn = true;
@@ -225,10 +231,6 @@ optionUpdate.on('change', function() {
           timeLapsCounter-=1;
         }
       }, 1000) 
-    }else {
-    
-
-
     }
     
     //  button for the time-laps bind with its click event
@@ -335,9 +337,8 @@ optionUpdate.on('change', function() {
  .attr("transform", `translate(260, -20)`)
  .attr("font-size", "18px")
  .append("text")
-
-
-  updateBarChart(barChartDataGDP, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densities, color)
+  const initialHeader = groupedByYearCollection["Gross domestic product"].header
+  updateBarChart(barChartDataGDP, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densities, color, initialHeader)
 
 
 // prepareDataYear(groupedGdpYear)
@@ -346,7 +347,6 @@ optionUpdate.on('change', function() {
 
     const countryDataOption = Array.from(groupedGdp, ([country, gdp]) => ({ country, gdp }))
       .sort((a, b) => d3.ascending(a.country, b.country));
-      console.log("country data option", countryDataOption)
       countryDataOption.forEach(data => {
       dropdownCountry.append('option')
         .attr('value', data.country)
@@ -365,32 +365,15 @@ optionUpdate.on('change', function() {
     dropdownDatasetUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentCountry = d3.select("#dropdown_country").property("value");
-      if ( selectedOption === "Gross domestic product"){
-
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data =  prepareBarChartData(groupedGdp, currentCountry)
-        updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-      } 
-      else if (selectedOption === 'Human Development Index'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data1 =  prepareBarChartDataIndex(groupedDevIndex, currentCountry)
-        updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-
-      } 
-      else if ( selectedOption === 'Mean - years of schooling'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedSchooling, currentCountry)
-        updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-      }
+      const setFromCollection = getData(groupedByYearCollection, selectedOption);
+      const groupedByYearData = setFromCollection[0].dataByYear;
+      const dropdownYear = dropdown.property("value");
+      const filteredData = groupedByYearData.get(dropdownYear)
+      const header = setFromCollection[0].header
+      const densitiesUpdate = {};
+      filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+      var data =  prepareBarChartData(setFromCollection[0].dataByCountry, currentCountry)
+      updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color, header)
     });
 
         
@@ -398,33 +381,15 @@ optionUpdate.on('change', function() {
     dropdownCountryUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentDataset = d3.select("#dropdown_dataset").property("value");
-      if ( currentDataset === "Gross domestic product"){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-
-        var data =  prepareBarChartData(groupedGdp, selectedOption)
-        updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-      } 
-      else if (currentDataset === 'Human Development Index'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data1 =  prepareBarChartDataIndex(groupedDevIndex, selectedOption)
-        updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-
-      } else if ( currentDataset ==='Mean - years of schooling'){
-        const dropdownYear = dropdown.property("value");
-        const filteredData = groupedByYearData.get(dropdownYear);
-        const densitiesUpdate = {};
-        filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedSchooling, selectedOption)
-        updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
-
-      }
-
+      const setFromCollection = getData(groupedByYearCollection, currentDataset);
+      const groupedByYearData = setFromCollection[0].dataByYear;
+      const dropdownYear = dropdown.property("value");
+      const header = setFromCollection[0].header
+      const filteredData = groupedByYearData.get(dropdownYear)
+      const densitiesUpdate = {};
+      filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
+      var data =  prepareBarChartData(setFromCollection[0].dataByCountry, selectedOption)
+      updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color, header)
     });
 
        // setting svg size
@@ -434,7 +399,6 @@ optionUpdate.on('change', function() {
 
     // preparing data
     const inventionsData = prepareInventionsData(inventions);
-    console.log("inventions data", inventionsData)
     // Drawing svg for inventions chart
     const svgImg = d3
     .select(`#inventions-container`)
@@ -456,7 +420,6 @@ optionUpdate.on('change', function() {
   .domain(inventionsData.map(d => d.value))
   .range([heightImg, 0])
   .padding(0.2);
-    console.log("data map", inventionsData.map(d => d.year)) 
 
   // Creating the y-axis
   const yAxisImg = d3.axisLeft(yScaleImg)
@@ -518,7 +481,6 @@ images.on("mouseover", function(event, d) {
 
    browserWidth = window.innerWidth;
    browserHeight = window.innerHeight;
-  console.log("Browser resolution:", browserWidth, "x", browserHeight);
   if(browserWidth <= 1745 ){
     setHight = 1620;
   }
@@ -656,38 +618,6 @@ d3.selectAll(".zoom").on("click", function(){
       country: d.country,
       year: d3.timeParse("%Y")(d.year).getFullYear(),
       value: +d.value,
-      header: "Gross Domestic product (Total)"
-    }));
-  
-    return dataArray;
-  }
-
-  function prepareBarChartDataIndex(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
-
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-      header: "Human Development Index"
-
-    }));
-  
-    return dataArray;
-  }
-
-  function prepareBarChartDataSchooling(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
-
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-      header: "Average Years of Schooling"
     }));
   
     return dataArray;
@@ -724,8 +654,7 @@ function formatTicks(d) {
 
 
 // function used to draw bar chart, contains mouse events for tooltip and styling changes on hover
-function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, yAxis, height, densities,color){
-   console.log("data in update", densities)
+function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, yAxis, height, densities, color, header){
 
   // getting selected country from drop down
    let selectedCountry = d3.select('#dropdown_country').property("value")
@@ -733,11 +662,10 @@ function updateBarChart(data, svgChart, xScaleBar, yScaleBar , barColor, xAxis, 
   
   // update header
   const headerElements = d3.select(".bar-chart-header text");
-  const headerText = data[0].header
 // append a new text element to each header element
 headerElements.join(
   enter => enter  
-  .text(`${headerText}: ${selectedCountry}`)
+  .text(`${header}: ${selectedCountry}`)
   .attr("fill", "white")
   .transition()
   .duration(1500)
@@ -747,7 +675,7 @@ headerElements.join(
   update =>update
   .transition()
   .duration(0)
-  .text(`${headerText}: ${selectedCountry}`)
+  .text(`${header}: ${selectedCountry}`)
   .attr("fill", "white")
   .transition()
   .duration(1500)
@@ -852,7 +780,6 @@ headerElements.join(
 }
 // function used to prepare color scale for map and bar chart
 function getColors(densityData) {
-  console.log("i am getting new colors")
   var sortedDensities = densityData
     .map((x) => parseInt(x.value))
     .sort(function (a, b) {
@@ -860,7 +787,6 @@ function getColors(densityData) {
     });
   var maxDensity = d3.max(sortedDensities);
 
-  console.log("sored densities", maxDensity)
 
   var oranges = ["white"]; // create lower bound for thresholds
 
@@ -933,7 +859,6 @@ headerElements.join(
     const className = d.properties.name.split(" ")[0];
     // d3.selectAll(`.${className}`).style("fill", "dodgerblue");
     var density = densities[d.id] ? densities[d.id].toLocaleString() : "No Data";
-    console.log("event page", event.pageX)
 
     d3.select(".tooltip")
       .html(
