@@ -197,7 +197,9 @@ optionUpdate.on('change', function() {
     let timeLapsCounter = 4;
 
     const timerElement = d3.select("#timer")
-          .append("text")
+            .append("text")
+    const timerLabel = d3.select("#timer-label")
+            .append("text")
 
     var buttonValue = d3.select("#time-laps-button").node().value;
     console.log(buttonValue);
@@ -215,6 +217,7 @@ optionUpdate.on('change', function() {
     }
     if(isTimeLapOn){
      intervalCounter = setInterval(() => {
+      timerLabel.join().text("- Year change timer")
         timerElement.join().text(timeLapsCounter)
         if(timeLapsCounter==0){
           timeLapsCounter = 4
@@ -245,6 +248,7 @@ optionUpdate.on('change', function() {
           }, intervalTime);
           intervalCounter = setInterval(() => {
             timerElement.join().text(timeLapsCounter)
+            timerLabel.join().text("- Year change timer")
             if(timeLapsCounter==0){
               timeLapsCounter = 4
             }else {
@@ -264,6 +268,7 @@ optionUpdate.on('change', function() {
           timeLapsCounter =4;
           clearInterval(intervalCounter)
           timerElement.join().text("")
+          timerLabel.join().text("")
         
         }
       });
@@ -877,18 +882,18 @@ function updateDensities(svgMap, filteredData, color, year){
 
   if ( selectedDataset === "Gross domestic product")
   {
-    headerText = "Gross Domestic product in Europe year: " + year;
+    headerText = "Gross Domestic product in Europe, year: " + year;
     tooltipText = "GDP";
   } else if (selectedDataset === "Human Development Index") 
   {
-    headerText = "Human Development Index in Europe year: " + year;
+    headerText = "Human Development Index in Europe, year: " + year;
     tooltipText = "HDI";
   } else if (selectedDataset === 'Mean - years of schooling') 
   {
-    headerText = "Mean - years of schooling in Europe year: " + year;
+    headerText = "Mean - years of schooling in Europe, year: " + year;
     tooltipText = "AVG years";
   } else {
-    headerText = "Gross Domestic product in Europe year: " + year;
+    headerText = "Gross Domestic product in Europe, year: " + year;
     tooltipText = "GDP";
   }
 // append a new text element to each header element

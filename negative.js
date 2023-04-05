@@ -46,45 +46,43 @@ function loadData() {
     
     const intervalTime = 5000
     // getting data from promises array 
-    const gdp = results[0];
-    const development_idex = results[1];
-    const schooling = results[2];
+    const emissions = results[0];
+    const obesity = results[1];
+    const diabetes = results[2];
     const countryData = results[3];
     const inventions = results[4];
 
     // other functional objects 
     var densities = {};
     var selectedOptionIndex = 0;
-    const dataset_names = ['Gross domestic product', 'Human Development Index', 'Mean - years of schooling']
+    const dataset_names = ['CO2 Emissions by country', 'Obesity among adults by country', 'Deaths from diabetes by country']
 
     // initiating color scale for map display
-    var colorGdp = getColors(gdp); 
-    var colorIndex = getColors(development_idex); 
-    var colorSchooling = getColors(schooling); 
-    var color =colorGdp;
+    var colorEmissions = getColors(emissions); 
+    var colorObesity = getColors(obesity); 
+    var colorDiabetes = getColors(diabetes); 
+    var color =colorEmissions;
 
-
-
-    console.log("gdp", gdp);
+    console.log("gdp", emissions);
     // console.log("dev index", development_idex);
     // console.log("schooling", schooling);
 
     // grouping datasets by country 
-    const groupedGdp = d3.group(gdp, d => d.country);
-    const groupedDevIndex = d3.group(development_idex, d => d.country);
-    const groupedSchooling = d3.group(schooling, d => d.country);
+    const groupedEmissions = d3.group(emissions, d => d.country);
+    const groupedObesity = d3.group(obesity, d => d.country);
+    const groupedDiabetes = d3.group(diabetes, d => d.country);
 
     // grouping datasets by year 
-    const groupedGdpYear = d3.group(gdp, d => d.year);
-    const groupedDevIndexYear = d3.group(development_idex, d => d.year);
-    const groupedSchoolingYear = d3.group(schooling, d => d.year);
+    const groupedEmissionsYear = d3.group(emissions, d => d.year);
+    const groupedObesityYear = d3.group(obesity, d => d.year);
+    const groupedDiabetesYear = d3.group(diabetes, d => d.year);
 
     // initiating data by year for map display
-    let groupedByYearData = groupedGdpYear;
+    let groupedByYearData = groupedEmissionsYear;
       
-      console.log("grouped by year map", groupedGdpYear)
+      console.log("grouped by year map", groupedEmissionsYear)
     // preparing data for a bar chart
-    const barChartDataGDP = prepareBarChartData(groupedGdp, 'Albania'); 
+    const barChartDataGDP = prepareBarChartData(groupedEmissions, 'Albania'); 
 
     const dropdownDatasetMap = d3.select('#dropdown-dataset-map1');
 
@@ -110,28 +108,28 @@ function loadData() {
       const dropdownDatasetMapUpdate = d3.select('#dropdown-dataset-map1');
       dropdownDatasetMapUpdate.on('change', function() {
         const selectedOption = d3.select(this).property('value');
-        if ( selectedOption === "Gross domestic product"){
-          groupedByYearData = groupedGdpYear;
+        if ( selectedOption === "CO2 Emissions by country"){
+          groupedByYearData = groupedEmissionsYear;
           const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorGdp; 
+          color = colorEmissions; 
           selectedOptionIndex = 0;
           const densitiesUpdate = {};
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
           updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
         } 
-        else if (selectedOption === 'Human Development Index'){
-          groupedByYearData = groupedDevIndexYear;
+        else if (selectedOption === 'Obesity among adults by country'){
+          groupedByYearData = groupedObesityYear;
           const filteredData = groupedByYearData.get(dropdownYear)
           selectedOptionIndex = 0;
-          color = colorIndex; 
+          color = colorObesity; 
           const densitiesUpdate = {};
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
           updateDensities(svgMap, filteredData, color, dropdownYear, densitiesUpdate)
         } 
-        else if ( selectedOption === 'Mean - years of schooling'){
-          groupedByYearData = groupedSchoolingYear;
+        else if ( selectedOption === 'Deaths from diabetes by country'){
+          groupedByYearData = groupedDiabetesYear;
           const filteredData = groupedByYearData.get(dropdownYear)
-          color = colorSchooling; 
+          color = colorDiabetes; 
           selectedOptionIndex = 0;
           const densitiesUpdate = {};
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.avg_years_of_schooling));
@@ -171,7 +169,7 @@ optionUpdate.on('change', function() {
       .append("path")
       .attr("class", (d) => `map-path1 ${d.properties.name}`)
       .attr("d", path)
-      .style("fill", (d) => colorGdp(densities[d.id]))
+      .style("fill", (d) => colorEmissions(densities[d.id]))
       .style("stroke", "black")
       .style("stroke-width", 0.3)
 
@@ -187,7 +185,7 @@ optionUpdate.on('change', function() {
       .attr("y", height - 100);
 
 
-    updateDensities(svgMap, filteredData, colorGdp, "2000")
+    updateDensities(svgMap, filteredData, colorEmissions, "2000")
     
     const plusButtonInterval = d3.select("#plus-button1");
 
@@ -198,16 +196,16 @@ optionUpdate.on('change', function() {
 
     var buttonValue = d3.select("#time-laps-button1").node().value;
     console.log(buttonValue);
-    // if(buttonValue === "Turn Off Time-laps"){
-    //        // Click the plus button every interval of seconds
-    //        isTimeLapOn = true;
-    //        timeLaps = setInterval(() => {
-    //         plusButtonInterval.node().click();
-    //       if(yearDataOption.length-1 == selectedOptionIndex){
-    //         selectedOptionIndex =0
-    //       }
-    //       }, intervalTime);
-    // }
+    if(buttonValue === "Turn Off Time-laps"){
+           // Click the plus button every interval of seconds
+           isTimeLapOn = true;
+           timeLaps = setInterval(() => {
+            plusButtonInterval.node().click();
+          if(yearDataOption.length-1 == selectedOptionIndex){
+            selectedOptionIndex =0
+          }
+          }, intervalTime);
+    }
     
     //  button for the time-laps bind with its click event
       d3.select("#time-laps-button1").on("click", function () {
@@ -308,7 +306,7 @@ optionUpdate.on('change', function() {
 
     const dropdownCountry = d3.select('#dropdown_country1');
 
-    const countryDataOption = Array.from(groupedGdp, ([country, gdp]) => ({ country, gdp }))
+    const countryDataOption = Array.from(groupedEmissions, ([country, gdp]) => ({ country, gdp }))
       .sort((a, b) => d3.ascending(a.country, b.country));
       console.log("country data option", countryDataOption)
       countryDataOption.forEach(data => {
@@ -329,34 +327,34 @@ optionUpdate.on('change', function() {
     dropdownDatasetUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentCountry = d3.select("#dropdown_country1").property("value");
-      if ( selectedOption === "Gross domestic product"){
+      if ( selectedOption === "CO2 Emissions by country"){
 
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         if(filteredData){
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data =  prepareBarChartData(groupedGdp, currentCountry)
+          var data =  prepareBarChartData(groupedEmissions, currentCountry)
           updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
         }
       } 
-      else if (selectedOption === 'Human Development Index'){
+      else if (selectedOption === 'Obesity among adults by country'){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         if(filteredData){
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data1 =  prepareBarChartDataIndex(groupedDevIndex, currentCountry)
+          var data1 =  prepareBarChartDataIndex(groupedObesity, currentCountry)
           updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
         }
 
       } 
-      else if ( selectedOption === 'Mean - years of schooling'){
+      else if ( selectedOption === 'Deaths from diabetes by country'){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedSchooling, currentCountry)
+        var data2 =  prepareBarChartDataSchooling(groupedDiabetes, currentCountry)
         updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
       }
     });
@@ -366,30 +364,30 @@ optionUpdate.on('change', function() {
     dropdownCountryUpdate.on('change', function() {
       const selectedOption = d3.select(this).property('value');
       const currentDataset = d3.select("#dropdown_dataset1").property("value");
-      if ( currentDataset === "Gross domestic product"){
+      if ( currentDataset === "CO2 Emissions by country"){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         if(filteredData){
           filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-          var data =  prepareBarChartData(groupedGdp, selectedOption)
+          var data =  prepareBarChartData(groupedEmissions, selectedOption)
           updateBarChart(data, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
         }
       } 
-      else if (currentDataset === 'Human Development Index'){
+      else if (currentDataset === 'Obesity among adults by country'){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data1 =  prepareBarChartDataIndex(groupedDevIndex, selectedOption)
+        var data1 =  prepareBarChartDataIndex(groupedObesity, selectedOption)
         updateBarChart(data1, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
 
-      } else if ( currentDataset ==='Mean - years of schooling'){
+      } else if ( currentDataset ==='Deaths from diabetes by country'){
         const dropdownYear = dropdown.property("value");
         const filteredData = groupedByYearData.get(dropdownYear);
         const densitiesUpdate = {};
         filteredData.forEach((x) => (densitiesUpdate[x.country_code] = +x.value));
-        var data2 =  prepareBarChartDataSchooling(groupedSchooling, selectedOption)
+        var data2 =  prepareBarChartDataSchooling(groupedDiabetes, selectedOption)
         updateBarChart(data2, svg, xScale, yScale, "steelblue", xAxis, yAxis, heightChart, densitiesUpdate, color)
 
       }
@@ -625,7 +623,7 @@ d3.selectAll("zoom").on("click", function(){
       country: d.country,
       year: d3.timeParse("%Y")(d.year).getFullYear(),
       value: +d.value,
-      header: "Gross Domestic product (Total)"
+      header: "CO2 Emissions by country (kt)"
     }));
   
     return dataArray;
@@ -640,7 +638,7 @@ d3.selectAll("zoom").on("click", function(){
       country: d.country,
       year: d3.timeParse("%Y")(d.year).getFullYear(),
       value: +d.value,
-      header: "Human Development Index"
+      header: "Obesity among adults by country"
 
     }));
   
@@ -849,21 +847,21 @@ function updateDensities(svgMap, filteredData, color, year){
   // getting selected dataset from drop down
   let selectedDataset = d3.select('#dropdown-dataset-map1').property("value")
 
-  if ( selectedDataset === "Gross domestic product")
+  if ( selectedDataset === "CO2 Emissions by country")
   {
-    headerText = "Gross Domestic product in Europe year: " + year;
-    tooltipText = "GDP";
-  } else if (selectedDataset === "Human Development Index") 
+    headerText = "CO2 Emissions (kiloton) in Europe, year: " + year;
+    tooltipText = "CO2";
+  } else if (selectedDataset === "Obesity among adults by country") 
   {
-    headerText = "Human Development Index in Europe year: " + year;
-    tooltipText = "HDI";
-  } else if (selectedDataset === 'Mean - years of schooling') 
+    headerText = "Obesity among adults (%) in Europe, year: " + year;
+    tooltipText = "Obesity (%)";
+  } else if (selectedDataset === 'Deaths from diabetes by country') 
   {
-    headerText = "Mean - years of schooling in Europe year: " + year;
-    tooltipText = "AVG years";
+    headerText = "Deaths from diabetes in Europe, year: " + year;
+    tooltipText = "Deaths";
   } else {
-    headerText = "Gross Domestic product in Europe year: " + year;
-    tooltipText = "GDP";
+    headerText = "CO2 Emissions (kiloton) in Europe, year: " + year;
+    tooltipText = "CO2";
   }
 // append a new text element to each header element
 headerElements.join(
