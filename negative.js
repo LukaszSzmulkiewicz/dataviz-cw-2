@@ -19,6 +19,7 @@ var projection = d3
 
 var path = d3.geoPath().projection(projection);
 
+
 var tooltip = d3
   .select(".map-container1")
   .append("div")
@@ -194,7 +195,15 @@ optionUpdate.on('change', function() {
 
     let timeLaps;
     let isTimeLapOn;
-    let intervalColor;
+    let intervalCounter;
+    let timeLapsCounter = 4;
+
+
+    
+    const timerElement = d3.select("#timer1")
+            .append("text")
+    const timerLabel = d3.select("#timer-label1")
+            .append("text")
 
 
     var buttonValue = d3.select("#time-laps-button1").node().value;
@@ -209,6 +218,18 @@ optionUpdate.on('change', function() {
           }
           }, intervalTime);
     }
+
+    if(isTimeLapOn){
+      intervalCounter = setInterval(() => {
+       timerLabel.join().text("- Year change timer")
+         timerElement.join().text(timeLapsCounter)
+         if(timeLapsCounter==0){
+           timeLapsCounter = 4
+         }else {
+           timeLapsCounter-=1;
+         }
+       }, 1000) 
+     }
     
     //  button for the time-laps bind with its click event
       d3.select("#time-laps-button1").on("click", function () {
@@ -225,15 +246,26 @@ optionUpdate.on('change', function() {
               selectedOptionIndex =0
             }
           }, intervalTime);
+          intervalCounter = setInterval(() => {
+            timerElement.join().text(timeLapsCounter)
+            timerLabel.join().text("- Year change timer")
+            if(timeLapsCounter==0){
+              timeLapsCounter = 4
+            }else {
+              timeLapsCounter-=1;
+            }
+          }, 1000) 
          
         }else {
           d3.select("#time-laps-button1").attr("value", "Turn On Time-laps");
           // Clear the interval
           isTimeLapOn = false;
           clearInterval(timeLaps);
-          clearInterval(intervalColor)
-          buttons.style("border", `2px solid #4fadc2`);
-          inputs.style("border", `2px solid #4fadc2`);
+
+          timeLapsCounter =4;
+          clearInterval(intervalCounter)
+          timerElement.join().text("")
+          timerLabel.join().text("")
         
         }
       });
@@ -365,7 +397,7 @@ optionUpdate.on('change', function() {
     const heightImg = 550 - marginImg.top - marginImg.bottom;
 
     // preparing data
-    const disastersData = prepareInventionsData(disasters);
+    const disastersData = prepareDisastersData(disasters);
     // Drawing svg for inventions chart
     const svgImg = d3
     .select(`#disasters-container`)
@@ -568,48 +600,15 @@ function changeColor() {
   buttons.style("border", `2px solid ${colors[currentColor]}`);
   inputs.style("border", `2px solid ${colors[currentColor]}`);
 }
-d3.selectAll("zoom").on("click", function(){
-  clearInterval(intervalColor)
-  buttons.style("border", `2px solid #4fadc2`);
-  inputs.style("border", `2px solid #4fadc2`);
-})
 
-  intervalColor = setInterval(changeColor, 1000);
+setInterval(changeColor, 1000);
 
 }
 
-  function prepareBarChartDataIndex(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
 
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-      header: "Obesity among adults by country"
 
-    }));
   
-    return dataArray;
-  }
-
-  function prepareBarChartDataSchooling(data, selectedOption) {
-    const filteredData = data.get(selectedOption)
-
-    // converting the map to the array of objects key at index 0 and value at index 1
-    const dataArray = filteredData.map((d) => ({
-      id: d.country_code,
-      country: d.country,
-      year: d3.timeParse("%Y")(d.year).getFullYear(),
-      value: +d.value,
-      header: "Average Years of Schooling"
-    }));
-  
-    return dataArray;
-  }
-
-  function prepareInventionsData(data){
+  function prepareDisastersData(data){
       // converting the map to the array of objects key at index 0 and value at index 1
       const dataArray = data.map((d) => ({
         year: d3.timeParse("%Y")(d.year).getFullYear(),
@@ -843,19 +842,21 @@ headerElements.join(
   });
 
 
-// map zoom
+  // map zoom
   let zoom = d3.zoom()
   .on('zoom', handleZoom);
 
-function handleZoom(e) {
-  d3.select('svg g')
+  function handleZoom(e) {
+  d3.select('.map1')
     .attr('transform', e.transform);
-}
+  }
 
-  d3.select('svg')
+  d3.select('.map-container1')
     .call(zoom);
 
 }
+
+
 
 // function used to shorten longer labels
 function formatTickLabel(d) {

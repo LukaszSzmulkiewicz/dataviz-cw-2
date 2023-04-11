@@ -191,7 +191,6 @@ function loadData() {
 
     let timeLaps;
     let isTimeLapOn;
-    let intervalColor;
     let intervalCounter;
     let timeLapsCounter = 4;
 
@@ -210,8 +209,6 @@ function loadData() {
             selectedOptionIndex =0
           }
           }, intervalTime);
-
-     
     }
     if(isTimeLapOn){
      intervalCounter = setInterval(() => {
@@ -240,6 +237,7 @@ function loadData() {
               selectedOptionIndex =0
             }
           }, intervalTime);
+
           intervalCounter = setInterval(() => {
             timerElement.join().text(timeLapsCounter)
             timerLabel.join().text("- Year change timer")
@@ -255,10 +253,7 @@ function loadData() {
           // Clear the interval
           isTimeLapOn = false;
           clearInterval(timeLaps);
-          clearInterval(intervalColor)
-          buttons.style("border", `2px solid #4fadc2`);
-          inputs.style("border", `2px solid #4fadc2`);
-
+          
           timeLapsCounter =4;
           clearInterval(intervalCounter)
           timerElement.join().text("")
@@ -592,13 +587,8 @@ function changeColor() {
   buttons.style("border", `2px solid ${colors[currentColor]}`);
   inputs.style("border", `2px solid ${colors[currentColor]}`);
 }
-d3.selectAll(".zoom").on("click", function(){
-  clearInterval(intervalColor)
-  buttons.style("border", `2px solid #4fadc2`);
-  inputs.style("border", `2px solid #4fadc2`);
-})
 
-  intervalColor = setInterval(changeColor, 1000);
+setInterval(changeColor, 1000);
 
 }
 
